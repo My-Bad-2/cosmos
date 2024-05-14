@@ -1,0 +1,16 @@
+option(
+    'kernel-arch',
+    type: 'combo',
+    choices: ['x86_64'],
+    value: 'x86_64',
+    description: 'Kernel architecture to target',
+    yield: true,
+)
+
+option(
+    'gcc-toolchain',
+    type: 'string',
+    value: '~/opt/cross/',
+    description: 'Path to gcc cross-compiler',
+    yield: true,
+)

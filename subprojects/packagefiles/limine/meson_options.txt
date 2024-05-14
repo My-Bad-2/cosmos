@@ -1,0 +1,16 @@
+option(
+    'limine-arch',
+    type: 'combo',
+    choices: ['x86_64'],
+    value: 'x86_64',
+    description: 'Kernel architecture to target',
+    yield: true,
+)
+
+option(
+    'limine-compiler',
+    type: 'string',
+    value: '',
+    description: 'C compiler id.',
+    yield: true,
+)
