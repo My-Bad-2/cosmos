@@ -7,6 +7,8 @@ kernel_include = [
 
 kernel_include += limine_subproject_include
 
+subdir('arch' / get_option('kernel-arch'))
+
 clangtidy_files += kernel_sources
 
 kernel_exec = executable(

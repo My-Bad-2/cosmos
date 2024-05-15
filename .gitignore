@@ -87,3 +87,8 @@ dkms.conf
 # Directories
 build/
 .cache/
+
+subprojects/limine/
+subprojects/ovmf/
+
+.clang-format
