@@ -1,6 +1,6 @@
+#include "stdio_internal.h"
 #include <ctype.h>
 #include <string.h>
-#include "stdio_internal.h"
 
 size_t stdio_atou(const char** str) {
 	size_t i = 0U;

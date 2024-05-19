@@ -3,6 +3,7 @@ libc_include = [include_directories('include')]
 libc_sources = files('ctype.c')
 
 subdir('string')
+subdir('stdio')
 
 clangtidy_files += libc_sources
 
