@@ -1,4 +1,5 @@
 #include <arch.h>
+#include <cpu/gdt.h>
 #include <devices/serials.h>
 
 void arch_pause() {
@@ -65,7 +66,13 @@ size_t arch_writeln(const char* str) {
 }
 
 void arch_init() {
+	arch_disable_interrupts();
+
 	if (!serials_init(SERIAL_COM_DEFAULT)) {
 		// TODO: Disable serial output
 	}
+
+	gdt_init();
+
+	arch_enable_interrupts();
 }
