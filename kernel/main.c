@@ -1,12 +1,12 @@
 #include <arch.h>
 #include <limine.h>
 #include <arch.h>
-#include <stdio.h>
+#include <log.h>
 
 void kmain() {
 	arch_init();
 
-	printf("Hello, World!\n");
+	log_info("Hello World!");
 
 	arch_halt(true);
 }

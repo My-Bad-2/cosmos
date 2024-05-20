@@ -1,4 +1,7 @@
-kernel_sources = files('main.c')
+kernel_sources = files(
+    'main.c',
+    'log.c',
+)
 
 kernel_include = [
     include_directories('include/'),
