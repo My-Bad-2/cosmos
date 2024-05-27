@@ -1,5 +1,5 @@
 #include <arch.h>
-#include <cpu/gdt.h>
+#include <cpu/cpu.h>
 #include <devices/serials.h>
 
 void arch_pause() {
@@ -72,7 +72,7 @@ void arch_init() {
 		// TODO: Disable serial output
 	}
 
-	gdt_init();
+	cpu_init();
 
 	arch_enable_interrupts();
 }
