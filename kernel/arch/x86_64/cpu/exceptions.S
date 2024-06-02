@@ -2,6 +2,11 @@
 #include <cpu/registers.h>
 
 .section .text
+.global load_idt
+load_idt:
+    lidt (%rdi)
+    retq
+
 .extern exception_handler
 .extern nmi_handler
 interrupt_common:
@@ -124,10 +129,11 @@ int_\num:
 
 .altmacro
 .macro interrupt.declare num
-    .quad \num
+    .quad int_\num
 .endm
 
-.set count, 1
+.section .text
+.set count, 0
 .rept 256
     interrupt.define %count
 .set count, count + 1

@@ -1,3 +1,4 @@
+#include "arch.h"
 #include <log.h>
 
 static inline const char* logger_get_tag(log_flag_t tag) {
@@ -69,4 +70,8 @@ void logger_log(log_flag_t tag, const char* file, int line, const char* fmt,
 	logger_vlog(tag_prefix, color, file, line, fmt, args);
 
 	va_end(args);
+
+	if(tag == LOG_FATAL) {
+		arch_halt(false);
+	}
 }
