@@ -71,7 +71,7 @@ void logger_log(log_flag_t tag, const char* file, int line, const char* fmt,
 
 	va_end(args);
 
-	if(tag == LOG_FATAL) {
+	if (tag == LOG_FATAL) {
 		arch_halt(false);
 	}
 }

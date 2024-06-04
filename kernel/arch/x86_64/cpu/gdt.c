@@ -1,6 +1,6 @@
 #include <cpu/gdt.h>
-#include <stdint.h>
 #include <log.h>
+#include <stdint.h>
 
 #define gdt_null_segment(segment) create_gdt_segment(segment, 0, 0, 0, 0)
 #define gdt_segment(segment, granularity, access)                              \
@@ -9,8 +9,8 @@
 gdt_t global_gdt = {};
 tss_t tss = {};
 gdt_register_t gdtr = {
-    sizeof(gdt_t) - 1,
-    (uint64_t)&global_gdt,
+	sizeof(gdt_t) - 1,
+	(uint64_t)&global_gdt,
 };
 
 extern void gdt_load(gdt_register_t* gdtr);
@@ -57,10 +57,10 @@ void gdt_init() {
 				GDT_FLAGS_PRESENT | GDT_FLAGS_DPL3 | GDT_FLAGS_SYSTEM |
 					GDT_FLAGS_EXECUTABLE | GDT_FLAGS_RW);
 
-    create_tss_segment(&global_gdt.tss, &tss);
+	create_tss_segment(&global_gdt.tss, &tss);
 
-    gdt_load(&gdtr);
-    tss_load();
+	gdt_load(&gdtr);
+	tss_load();
 
-    log_info("Successfully loaded GDT.");
+	log_info("Successfully loaded GDT.");
 }

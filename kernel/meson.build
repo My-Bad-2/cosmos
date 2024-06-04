@@ -1,6 +1,7 @@
 kernel_sources = files(
-    'main.c',
+    'kernel.c',
     'log.c',
+    'assert.c'
 )
 
 kernel_include = [
@@ -11,6 +12,8 @@ kernel_include = [
 kernel_include += limine_subproject_include
 
 subdir('arch' / get_option('kernel-arch'))
+subdir('memory')
+subdir('utils')
 
 clangtidy_files += kernel_sources
 

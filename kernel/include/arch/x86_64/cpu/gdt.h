@@ -48,23 +48,23 @@ typedef struct {
 } __attribute__((packed)) gdt_segment_t;
 
 typedef struct {
-    uint16_t len;
-    uint16_t base_low;
-    uint8_t base_mid;
-    uint8_t flags_low;
-    uint8_t flags_high;
-    uint8_t base_high;
-    uint32_t base_upper;
-    uint32_t reserved;
+	uint16_t len;
+	uint16_t base_low;
+	uint8_t base_mid;
+	uint8_t flags_low;
+	uint8_t flags_high;
+	uint8_t base_high;
+	uint32_t base_upper;
+	uint32_t reserved;
 } __attribute__((packed)) tss_segment_t;
 
 typedef struct {
-    gdt_segment_t null;
-    gdt_segment_t kernel_code;
-    gdt_segment_t kernel_data;
-    gdt_segment_t user_data;
-    gdt_segment_t user_code;
-    tss_segment_t tss;
+	gdt_segment_t null;
+	gdt_segment_t kernel_code;
+	gdt_segment_t kernel_data;
+	gdt_segment_t user_data;
+	gdt_segment_t user_code;
+	tss_segment_t tss;
 } __attribute__((packed)) gdt_t;
 
 typedef struct {

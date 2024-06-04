@@ -2,11 +2,16 @@
 #define ARCH_H
 
 #include <stdbool.h>
-#include <stdint.h>
 #include <stddef.h>
+#include <stdint.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 #define outp(port, val)                                                        \
-	_Generic((val), uint8_t: outpb, uint16_t: outpw, uint32_t: outpl)(port, (val))
+	_Generic((val), uint8_t: outpb, uint16_t: outpw, uint32_t: outpl)(port,    \
+																	  (val))
 
 void arch_init(void);
 
@@ -26,5 +31,9 @@ uint32_t inpl(uint16_t port);
 
 void arch_putc(int ch);
 size_t arch_writeln(const char* str);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	// ARCH_H

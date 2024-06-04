@@ -16,16 +16,6 @@ SECTIONS
 {
     . = 0xffffffff80000000;
 
-    .limine_requests : {
-        *(.limine_requests .limine_requests.*)
-    } :limine_requests
-
-    .limine_requests_delimiter : {
-        *(.limine_requests_delimiter .limine_requests_delimiter.*)
-    } :limine_requests
-
-    . += CONSTANT(MAXPAGESIZE);
-
     .text : {
         *(.text .text.*)
     } :text
@@ -47,6 +37,10 @@ SECTIONS
 
     .data : {
         *(.data .data.*)
+
+        *(.limine_requests_start_marker)
+        *(.limine_requests)
+        *(.limine_requests_end_marker)
     } :data
 
     .dynamic : {

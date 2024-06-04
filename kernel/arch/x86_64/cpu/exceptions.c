@@ -3,17 +3,17 @@
 #include <log.h>
 
 void exception_handler(iframe_t* frame) {
-    (void)frame;
+	(void)frame;
 
-    arch_disable_interrupts();
+	arch_disable_interrupts();
 
-    log_fatal("Exception occurred!");
+	log_fatal("Exception occurred!");
 
-    arch_enable_interrupts();
+	arch_enable_interrupts();
 }
 
 void nmi_handler(iframe_t* frame) {
-    (void)frame;
+	(void)frame;
 
-    log_fatal("NMI occurred!");
+	log_fatal("NMI occurred!");
 }

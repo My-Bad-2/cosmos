@@ -9,6 +9,10 @@
 
 #define IDT_MAX_ENTRY (256)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
 	uint16_t offset_low;
 	uint16_t selector;
@@ -29,5 +33,9 @@ typedef struct {
 } __attribute__((packed)) idt_register_t;
 
 void idt_init(void);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	// CPU_IDT_H
