@@ -16,7 +16,7 @@ void lock_acquire(lock_t* lock) {
 }
 
 void lock_release(lock_t* lock) {
-	if (lock_is_locked(lock)) {
+	if (!lock_is_locked(lock)) {
 		return;
 	}
 

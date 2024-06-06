@@ -1,3 +1,4 @@
+#include "limine.h"
 #include <arch.h>
 #include <kernel.h>
 #include <log.h>
@@ -21,6 +22,29 @@ volatile struct limine_memmap_request memmap_request = {
 __attribute__((used, section(".limine_requests")))
 volatile struct limine_hhdm_request hhdm_request = {
 	.id = LIMINE_HHDM_REQUEST,
+	.revision = 0,
+	.response = NULL,
+};
+
+__attribute__((used, section(".limine_requests")))
+volatile struct limine_paging_mode_request paging_mode_request = {
+	.id = LIMINE_PAGING_MODE_REQUEST,
+	.revision = 0,
+	.response = NULL,
+	.mode = LIMINE_PAGING_MODE_MAX,
+	.flags = 0,
+};
+
+__attribute__((used, section(".limine_requests")))
+volatile struct limine_kernel_address_request kernel_address_request = {
+	.id = LIMINE_KERNEL_ADDRESS_REQUEST,
+	.revision = 0,
+	.response = NULL,
+};
+
+__attribute__((used, section(".limine_requests")))
+volatile struct limine_kernel_file_request kernel_file_request = {
+	.id = LIMINE_KERNEL_FILE_REQUEST,
 	.revision = 0,
 	.response = NULL,
 };

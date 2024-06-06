@@ -46,7 +46,7 @@ phys_addr_t alloc_phys_pages(size_t count) {
 		return INVALID_ADDR;
 	}
 
-	lock_acquire(&phys_lock);
+	try_lock(&phys_lock);
 
 	size_t i = last_index;
 	phys_addr_t ret =
@@ -79,7 +79,7 @@ void free_phys_pages(void* address, size_t count) {
 		return;
 	}
 
-	lock_acquire(&phys_lock);
+	try_lock(&phys_lock);
 
 	size_t page = ((uintptr_t)address / PAGE_SIZE);
 
@@ -101,7 +101,7 @@ void lock_phys_pages(size_t count) {
 		return;
 	}
 
-	lock_acquire(&phys_lock);
+	try_lock(&phys_lock);
 
 	size_t i = last_index;
 	phys_addr_t ret =
