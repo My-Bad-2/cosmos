@@ -43,7 +43,7 @@ uint64_t read_cr0(void);
 uint64_t read_cr3(void);
 uint64_t read_cr4(void);
 
-void invlpg(uint64_t address);
+void invlpg(void* address);
 
 void cpu_init(void);
 void cpu_enable_pat(void);

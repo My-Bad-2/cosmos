@@ -26,3 +26,7 @@ uintptr_t align_up(uintptr_t address, size_t page_size) {
 bool is_aligned(uintptr_t address, size_t page_size) {
 	return (align_down(address, page_size) == address);
 }
+
+size_t div_roundup(size_t a, size_t b) {
+	return align_up(a, b) / a;
+}

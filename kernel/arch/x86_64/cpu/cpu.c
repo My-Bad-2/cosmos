@@ -66,8 +66,8 @@ uint64_t read_cr4(void) {
 	return val;
 }
 
-void invlpg(uint64_t address) {
-	asm volatile("invlpg (%0)" ::"r"(address));
+void invlpg(void* address) {
+	asm volatile("invlpg (%0)" ::"b"(address) : "memory");
 }
 
 void cpu_enable_pat(void) {

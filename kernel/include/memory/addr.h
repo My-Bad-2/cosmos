@@ -22,6 +22,8 @@ uintptr_t align_down(uintptr_t address, size_t page_size);
 uintptr_t align_up(uintptr_t address, size_t page_size);
 bool is_aligned(uintptr_t address, size_t page_size);
 
+size_t div_roundup(size_t a, size_t b);
+
 #ifdef __cplusplus
 }
 #endif

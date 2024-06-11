@@ -65,10 +65,12 @@ size_t arch_writeln(const char* str) {
 	return serials_write_str(SERIAL_COM_DEFAULT, str);
 }
 
-void arch_init() {
+void arch_early_init(void) {
 	if (!serials_init(SERIAL_COM_DEFAULT)) {
 		// TODO: Disable serial output
 	}
+}
 
+void arch_init(void) {
 	cpu_init();
 }

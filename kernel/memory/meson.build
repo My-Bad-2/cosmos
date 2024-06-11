@@ -3,4 +3,5 @@ kernel_sources += files(
     'phys.c',
     'memory.c',
     'vmm.c',
+    'heap.c',
 )

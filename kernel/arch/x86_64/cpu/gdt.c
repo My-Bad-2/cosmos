@@ -1,3 +1,4 @@
+#include <memory/heap.h>
 #include <cpu/gdt.h>
 #include <log.h>
 #include <stdint.h>
@@ -6,12 +7,7 @@
 #define gdt_segment(segment, granularity, access)                              \
 	create_gdt_segment(segment, 0, 0xFFFFFFFF, granularity, access)
 
-gdt_t global_gdt = {};
 tss_t tss = {};
-gdt_register_t gdtr = {
-	sizeof(gdt_t) - 1,
-	(uint64_t)&global_gdt,
-};
 
 extern void gdt_load(gdt_register_t* gdtr);
 extern void tss_load(void);
@@ -40,27 +36,34 @@ static void create_tss_segment(tss_segment_t* segment, tss_t* tss) {
 }
 
 void gdt_init() {
-	gdt_null_segment(&global_gdt.null);
+	gdt_t* gdt = heap_malloc(sizeof(gdt_t));
 
-	gdt_segment(&global_gdt.kernel_code, GDT_FLAGS_LONG_MODE,
+	gdt_null_segment(&gdt->null);
+
+	gdt_segment(&gdt->kernel_code, GDT_FLAGS_LONG_MODE,
 				GDT_FLAGS_PRESENT | GDT_FLAGS_SYSTEM | GDT_FLAGS_EXECUTABLE |
 					GDT_FLAGS_RW);
 
-	gdt_segment(&global_gdt.kernel_data, 0,
+	gdt_segment(&gdt->kernel_data, 0,
 				GDT_FLAGS_PRESENT | GDT_FLAGS_SYSTEM | GDT_FLAGS_RW);
 
-	gdt_segment(&global_gdt.user_data, 0,
+	gdt_segment(&gdt->user_data, 0,
 				GDT_FLAGS_PRESENT | GDT_FLAGS_DPL3 | GDT_FLAGS_SYSTEM |
 					GDT_FLAGS_RW);
 
-	gdt_segment(&global_gdt.user_code, 0,
+	gdt_segment(&gdt->user_code, 0,
 				GDT_FLAGS_PRESENT | GDT_FLAGS_DPL3 | GDT_FLAGS_SYSTEM |
 					GDT_FLAGS_EXECUTABLE | GDT_FLAGS_RW);
 
-	create_tss_segment(&global_gdt.tss, &tss);
+	create_tss_segment(&gdt->tss, &tss);
+
+	gdt_register_t gdtr = {
+		.limit = sizeof(gdt_t) - 1,
+		.base = (uintptr_t)gdt,
+	};
 
 	gdt_load(&gdtr);
 	tss_load();
 
-	log_info("Successfully loaded GDT.");
+	log_info("Initialized Global Descriptor Table!");
 }

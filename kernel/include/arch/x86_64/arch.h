@@ -13,6 +13,7 @@ extern "C" {
 	_Generic((val), uint8_t: outpb, uint16_t: outpw, uint32_t: outpl)(port,    \
 																	  (val))
 
+void arch_early_init(void);
 void arch_init(void);
 
 void arch_pause(void);

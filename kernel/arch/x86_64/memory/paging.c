@@ -243,7 +243,7 @@ static bool unmap_internal(pte_table_t* toplvl, virt_addr_t virt_addr,
 	}
 
 	pml_entry->entry = 0;
-	invlpg(virt_addr);
+	invlpg((void*)virt_addr);
 
 	return true;
 }

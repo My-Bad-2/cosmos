@@ -1,4 +1,3 @@
-#include "limine.h"
 #include <arch.h>
 #include <kernel.h>
 #include <log.h>
@@ -55,12 +54,14 @@ static volatile LIMINE_REQUESTS_END_MARKER;
 // clang-format on
 
 void kmain() {
-	arch_init();
-	memory_init();
+	arch_early_init();
 
 	if (!LIMINE_BASE_REVISION_SUPPORTED) {
 		log_info("Limine base revision not supported.");
 	}
+
+	memory_init();
+	arch_init();
 
 	log_info("Hello World!");
 
