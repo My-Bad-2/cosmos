@@ -4,5 +4,6 @@ kernel_sources += files(
     'gdt.S',
     'exceptions.S',
     'exceptions.c',
-    'idt.c'
+    'idt.c',
+    'interrupts.c',
 )

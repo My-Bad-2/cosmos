@@ -1,7 +1,8 @@
 #include <cpu/gdt.h>
 #include <cpu/idt.h>
-#include <memory/heap.h>
+#include <cpu/interrupts.h>
 #include <log.h>
+#include <memory/heap.h>
 
 #define KERNEL_CODE_SELECTOR (0x8)
 
@@ -22,7 +23,7 @@ static void make_idt_segment(idt_segment_t* segment, uint64_t handler,
 
 void idt_init(void) {
 	idt_t* idt = heap_malloc(sizeof(idt_t));
-	
+
 	for (int i = 0; i < IDT_MAX_ENTRY; ++i) {
 		make_idt_segment(&idt->entries[i], int_table[i], 0, IDT_INTERRUPT_GATE,
 						 KERNEL_CODE_SELECTOR);
@@ -34,6 +35,8 @@ void idt_init(void) {
 	};
 
 	load_idt(&idtr);
+
+	interrupt_handler_init();
 
 	log_info("Initialized Interrupt Descriptor Table!");
 }

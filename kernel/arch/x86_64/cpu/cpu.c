@@ -54,6 +54,12 @@ uint64_t read_cr0(void) {
 	return val;
 }
 
+uint64_t read_cr2(void) {
+	uint64_t val = 0;
+	asm volatile("mov %%cr2, %0" : "=r"(val)::"memory");
+	return val;
+}
+
 uint64_t read_cr3(void) {
 	uint64_t val = 0;
 	asm volatile("mov %%cr3, %0" : "=r"(val)::"memory");

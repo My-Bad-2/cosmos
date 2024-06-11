@@ -1,5 +1,5 @@
-#ifndef ASSERT_H
-#define ASSERT_H
+#ifndef _ASSERT_H
+#define _ASSERT_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -22,4 +22,4 @@ void assert_fail(const char* message, const char* file, int line, const char* fu
 }
 #endif
 
-#endif	// ASSERT_H
+#endif	// _ASSERT_H

@@ -40,6 +40,7 @@ void write_cr3(uint64_t val);
 void write_cr4(uint64_t val);
 
 uint64_t read_cr0(void);
+uint64_t read_cr2(void);
 uint64_t read_cr3(void);
 uint64_t read_cr4(void);
 

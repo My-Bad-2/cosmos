@@ -4,6 +4,7 @@ libc_sources = files('ctype.c')
 
 subdir('string')
 subdir('stdio')
+subdir('stdlib')
 
 clangtidy_files += libc_sources
 
