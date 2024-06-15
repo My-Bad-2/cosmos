@@ -75,6 +75,8 @@ limine_subproject_include = limine_subproject.get_variable('limine_include')
 
 ovmf_subproject = subproject('ovmf')
 
+uacpi_dependency = dependency('uacpi')
+
 # Process Source Tree
 clangtidy_files = []
 

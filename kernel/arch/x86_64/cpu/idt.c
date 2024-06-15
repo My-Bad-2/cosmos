@@ -3,6 +3,7 @@
 #include <cpu/interrupts.h>
 #include <log.h>
 #include <memory/heap.h>
+#include <cpu/pic.h>
 
 #define KERNEL_CODE_SELECTOR (0x8)
 
@@ -37,6 +38,7 @@ void idt_init(void) {
 	load_idt(&idtr);
 
 	interrupt_handler_init();
+	pic_remap(PLATFORM_INTERRUPT_BASE, PLATFORM_INTERRUPT_BASE + 8);
 
 	log_info("Initialized Interrupt Descriptor Table!");
 }

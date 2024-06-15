@@ -13,14 +13,14 @@ extern "C" {
 	_Generic((val), uint8_t: outpb, uint16_t: outpw, uint32_t: outpl)(port,    \
 																	  (val))
 
+#define arch_pause() asm volatile("pause")
+#define arch_disable_interrupts() asm volatile("cli")
+#define arch_enable_interrupts() asm volatile("sti")
+
 void arch_early_init(void);
 void arch_init(void);
 
-void arch_pause(void);
 void arch_halt(bool interrupts);
-
-void arch_disable_interrupts(void);
-void arch_enable_interrupts(void);
 
 void outpb(uint16_t port, uint8_t val);
 void outpw(uint16_t port, uint16_t val);

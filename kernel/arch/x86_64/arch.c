@@ -2,10 +2,6 @@
 #include <cpu/cpu.h>
 #include <devices/serials.h>
 
-void arch_pause() {
-	asm volatile("pause");
-}
-
 void arch_halt(bool interrupts) {
 	if (interrupts) {
 		while (true) {
@@ -17,14 +13,6 @@ void arch_halt(bool interrupts) {
 			arch_pause();
 		}
 	}
-}
-
-void arch_disable_interrupts() {
-	asm volatile("cli");
-}
-
-void arch_enable_interrupts() {
-	asm volatile("sti");
 }
 
 void outpb(uint16_t port, uint8_t val) {

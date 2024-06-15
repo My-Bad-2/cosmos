@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <cpu/idt.h>
 #include <cpu/interrupts.h>
+#include <cpu/pic.h>
 #include <log.h>
 #include <memory/heap.h>
 
@@ -44,13 +45,23 @@ int allocate_interrupt_handler(interrupt_handler_t handler) {
 
 		interrupt_handlers[i].handler = handler;
 		interrupt_handlers[i].vector_id = i;
-		interrupt_handlers[i].reserved = 0;
+		interrupt_handlers[i].reserved = true;
 
 		return i;
 	}
 
 	log_fatal("Out of interrupt handlers!");
-    return 0;
+	return 0;
+}
+
+void allocate_interrupt_handler_at(interrupt_handler_t handler, int vector) {
+	if (interrupt_handlers[vector].reserved) {
+		log_fatal("Interrupt handler is reserved.");
+	}
+
+	interrupt_handlers[vector].handler = handler;
+	interrupt_handlers[vector].vector_id = vector;
+	interrupt_handlers[vector].reserved = true;
 }
 
 void call_interrupt_handler(iframe_t* iframe) {
@@ -63,4 +74,12 @@ void call_interrupt_handler(iframe_t* iframe) {
 	}
 
 	interrupt_handlers[iframe->vector].handler(iframe);
+}
+
+void set_interrupt_mask(int vector) {
+	pic_set_mask(vector);
+}
+
+void clear_interrupt_mask(int vector) {
+	pic_clear_mask(vector);
 }

@@ -1,7 +1,7 @@
 kernel_sources = files(
+    'assert.c',
     'kernel.c',
     'log.c',
-    'assert.c'
 )
 
 kernel_include = [
@@ -23,4 +23,5 @@ kernel_exec = executable(
     include_directories: [kernel_include, libc_include],
     link_with: [libc_library],
     install: false,
+    dependencies: [uacpi_dependency],
 )

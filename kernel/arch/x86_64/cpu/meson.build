@@ -6,4 +6,5 @@ kernel_sources += files(
     'exceptions.c',
     'idt.c',
     'interrupts.c',
+    'pic.c',
 )
