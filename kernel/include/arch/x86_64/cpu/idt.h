@@ -13,7 +13,7 @@
 extern "C" {
 #endif
 
-typedef struct {
+struct idt_segment {
 	uint16_t offset_low;
 	uint16_t selector;
 	uint8_t ist;
@@ -21,16 +21,16 @@ typedef struct {
 	uint16_t offset_mid;
 	uint32_t offset_high;
 	uint32_t reserved;
-} __attribute__((packed)) idt_segment_t;
+} __attribute__((packed));
 
-typedef struct {
-	idt_segment_t entries[IDT_MAX_ENTRY];
-} __attribute__((packed)) idt_t;
+struct idt_table {
+	struct idt_segment entries[IDT_MAX_ENTRY];
+} __attribute__((packed));
 
-typedef struct {
+struct idt_register {
 	uint16_t limit;
 	uint64_t base;
-} __attribute__((packed)) idt_register_t;
+} __attribute__((packed));
 
 void idt_init(void);
 

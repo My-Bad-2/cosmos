@@ -4,7 +4,7 @@
 #include <cpu/idt.h>
 #include <cpu/registers.h>
 
-bool cpuid(cpuid_leaf_t* cpuid_leaf, uint32_t leaf, uint32_t subleaf) {
+bool cpuid(struct cpuid_leaf* cpuid_leaf, uint32_t leaf, uint32_t subleaf) {
 	uint32_t cpuid_max = 0;
 
 	asm volatile("cpuid"

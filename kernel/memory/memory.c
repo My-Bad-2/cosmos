@@ -1,7 +1,7 @@
+#include <memory/heap.h>
 #include <memory/memory.h>
 #include <memory/phys.h>
 #include <memory/vmm.h>
-#include <memory/heap.h>
 
 void memory_init() {
 	phys_init();

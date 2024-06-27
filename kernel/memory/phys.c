@@ -12,8 +12,9 @@
 
 static bitmap_t phys_bitmap = BITMAP_INITIALIZER;
 static lock_t phys_lock = LOCK_INITIALIZER;
-static uintptr_t highest_usable_addr = 0;
+static phys_addr_t highest_usable_addr = 0;
 static size_t last_index = 0;
+static phys_addr_t phys_highest_address = 0;
 
 size_t total_phys_memory = 0;
 size_t usable_phys_memory = 0;
@@ -74,6 +75,10 @@ phys_addr_t alloc_phys_page() {
 	return alloc_phys_pages(1);
 }
 
+phys_addr_t highest_phys_addr(void) {
+	return phys_highest_address;
+}
+
 void free_phys_pages(void* address, size_t count) {
 	if (address == NULL) {
 		return;
@@ -127,11 +132,9 @@ void phys_init() {
 	struct limine_memmap_entry** memmaps = memmap_request.response->entries;
 	size_t memmap_count = memmap_request.response->entry_count;
 
-	uintptr_t highest_address = 0;
-
 	for (size_t i = 0; i < memmap_count; ++i) {
 		phys_addr_t top = memmaps[i]->base + memmaps[i]->length;
-		highest_address = MAX(highest_address, top);
+		phys_highest_address = MAX(phys_highest_address, top);
 
 		switch (memmaps[i]->type) {
 			case LIMINE_MEMMAP_USABLE:

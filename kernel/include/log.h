@@ -18,7 +18,7 @@
 
 #define LOG_EMPTY ""
 
-typedef enum {
+enum log_flags {
 	LOG_NOTAG = (1 << 0),
 	LOG_NOTE = (1 << 1),
 	LOG_INFO = (1 << 2),
@@ -27,13 +27,13 @@ typedef enum {
 	LOG_TRACE = (1 << 5),
 	LOG_ERROR = (1 << 6),
 	LOG_FATAL = (1 << 7)
-} log_flag_t;
+};
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void logger_log(log_flag_t tag, const char* file, int line, const char* fmt,
+void logger_log(enum log_flags tag, const char* file, int line, const char* fmt,
 				...) __attribute__((format(PRINTF, 4, 5)));
 
 #define log_notag(fmt, ...)                                                    \

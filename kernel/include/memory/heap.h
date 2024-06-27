@@ -1,11 +1,11 @@
 #ifndef MEMORY_HEAP_H
 #define MEMORY_HEAP_H
 
+#include <limits.h>
 #include <memory/addr.h>
-#include <utils/sync.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <limits.h>
+#include <utils/sync.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,4 +21,4 @@ void heap_init(void);
 }
 #endif
 
-#endif // MEMORY_HEAP_H
+#endif	// MEMORY_HEAP_H

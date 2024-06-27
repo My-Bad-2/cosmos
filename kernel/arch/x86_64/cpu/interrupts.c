@@ -64,7 +64,7 @@ void allocate_interrupt_handler_at(interrupt_handler_t handler, int vector) {
 	interrupt_handlers[vector].reserved = true;
 }
 
-void call_interrupt_handler(iframe_t* iframe) {
+void call_interrupt_handler(struct iframe* iframe) {
 	if (interrupt_handlers[iframe->vector].handler == NULL) {
 		log_fatal("Interrupt handler not allocated.");
 	}

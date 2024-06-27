@@ -10,6 +10,8 @@ extern "C" {
 phys_addr_t alloc_phys_page(void);
 phys_addr_t alloc_phys_pages(size_t count);
 
+phys_addr_t highest_phys_addr(void);
+
 void free_phys_page(void* address);
 void free_phys_pages(void* address, size_t count);
 

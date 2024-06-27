@@ -194,5 +194,5 @@ void heap_init(void) {
 	slab_init(&heap_slabs[7], 512);
 	slab_init(&heap_slabs[8], 1024);
 
-    log_info("Initialized Heap!");
+	log_info("Initialized Heap!");
 }

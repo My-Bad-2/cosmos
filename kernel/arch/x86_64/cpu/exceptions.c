@@ -39,7 +39,7 @@ static char* interrupt_exception_messages[32] = {
 	"Reserved",
 };
 
-static void dump_interrupt_frame(iframe_t* iframe) {
+static void dump_interrupt_frame(struct iframe* iframe) {
 	log_trace("CS : %#08lx RIP: %0#lx  EFL: %#08lx", iframe->cs, iframe->ip,
 			  iframe->flags);
 	log_trace("RAX: %#08lx RBX: %#08lx RCX: %#08lx", iframe->rax, iframe->rbx,
@@ -58,7 +58,7 @@ static void dump_interrupt_frame(iframe_t* iframe) {
 			  read_cr3());
 }
 
-static void handle_cpu_exceptions(iframe_t* iframe) {
+static void handle_cpu_exceptions(struct iframe* iframe) {
 	log_error("EXCEPTION OCCURRED(%lu) -> %s", iframe->vector,
 			  interrupt_exception_messages[iframe->vector]);
 
@@ -67,7 +67,7 @@ static void handle_cpu_exceptions(iframe_t* iframe) {
 	log_fatal("Halting system");
 }
 
-void exception_handler(iframe_t* iframe) {
+void exception_handler(struct iframe* iframe) {
 	arch_disable_interrupts();
 
 	if (iframe->vector < 32) {
@@ -79,7 +79,7 @@ void exception_handler(iframe_t* iframe) {
 	arch_enable_interrupts();
 }
 
-void nmi_handler(iframe_t* frame) {
+void nmi_handler(struct iframe* frame) {
 	(void)frame;
 
 	log_fatal("NMI occurred!");

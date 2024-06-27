@@ -1,18 +1,18 @@
-#include <memory/heap.h>
 #include <cpu/gdt.h>
 #include <log.h>
+#include <memory/heap.h>
 #include <stdint.h>
 
 #define gdt_null_segment(segment) create_gdt_segment(segment, 0, 0, 0, 0)
 #define gdt_segment(segment, granularity, access)                              \
 	create_gdt_segment(segment, 0, 0xFFFFFFFF, granularity, access)
 
-tss_t tss = {};
+struct tss tss = {};
 
-extern void gdt_load(gdt_register_t* gdtr);
+extern void gdt_load(struct gdt_register* gdtr);
 extern void tss_load(void);
 
-static void create_gdt_segment(gdt_segment_t* segment, uint32_t base,
+static void create_gdt_segment(struct gdt_segment* segment, uint32_t base,
 							   uint32_t limit, uint8_t granularity,
 							   uint8_t access) {
 	segment->limit_low = (uint16_t)(limit & 0xFFFF);
@@ -24,8 +24,8 @@ static void create_gdt_segment(gdt_segment_t* segment, uint32_t base,
 	segment->base_high = (uint8_t)((base >> 24) & 0xFF);
 }
 
-static void create_tss_segment(tss_segment_t* segment, tss_t* tss) {
-	segment->len = sizeof(tss_t);
+static void create_tss_segment(struct tss_segment* segment, struct tss* tss) {
+	segment->len = sizeof(struct tss);
 	segment->base_low = (uint16_t)((uintptr_t)tss & 0xFFFF);
 	segment->base_mid = (uint8_t)(((uintptr_t)tss >> 16) & 0xFF);
 	segment->flags_low = 0x89;
@@ -36,7 +36,7 @@ static void create_tss_segment(tss_segment_t* segment, tss_t* tss) {
 }
 
 void gdt_init() {
-	gdt_t* gdt = heap_malloc(sizeof(gdt_t));
+	struct gdt_table* gdt = heap_malloc(sizeof(struct gdt_table));
 
 	gdt_null_segment(&gdt->null);
 
@@ -57,8 +57,8 @@ void gdt_init() {
 
 	create_tss_segment(&gdt->tss, &tss);
 
-	gdt_register_t gdtr = {
-		.limit = sizeof(gdt_t) - 1,
+	struct gdt_register gdtr = {
+		.limit = sizeof(struct gdt_table) - 1,
 		.base = (uintptr_t)gdt,
 	};
 

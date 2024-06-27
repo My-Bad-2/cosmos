@@ -5,7 +5,7 @@
 #include <memory/phys.h>
 #include <memory/vmm.h>
 
-pte_table_t* kernel_pagemap = NULL;
+struct pte_table* kernel_pagemap = NULL;
 
 static size_t get_required_size(size_t size) {
 	if (size >= PAGE_SIZE_1GiB) {
@@ -29,14 +29,14 @@ static size_t page_size_flags(size_t page_size) {
 	return 0;
 }
 
-void* get_next_pml(pte_table_t* curr_lvl, pte_t* entry, bool allocate,
+void* get_next_pml(struct pte_table* curr_lvl, struct pte* entry, bool allocate,
 				   virt_addr_t virt_addr, size_t opage_size, size_t page_size) {
 	void* ret = NULL;
 
 	if (pte_is_valid(entry)) {
 		if (pte_is_large(entry) && opage_size != (size_t)(-1)) {
-			vm_flags_t vm_flags = parse_vm_flags(pte_get_flags(entry),
-												 opage_size > PAGE_SIZE_4KiB);
+			struct vm_flags vm_flags = parse_vm_flags(
+				pte_get_flags(entry), opage_size > PAGE_SIZE_4KiB);
 			phys_addr_t old_phys_addr = pte_get_address(entry);
 			virt_addr_t old_virt_addr = virt_addr & ~(opage_size - 1);
 

@@ -24,14 +24,20 @@
 #define VMM_CACHE_MMIO VMM_CACHE_UNCACHEABLE_STRONG
 #define VMM_CACHE_FRAMEBUFFER VMM_CACHE_WRITE_COMBINING
 
-typedef struct {
+struct vm_flags {
 	size_t flags;
 	size_t cache;
-} vm_flags_t;
+};
+
+struct vm_object {
+	virt_addr_t base;
+	size_t size;
+	size_t flags;
+};
 
 void vmm_init(void);
 void vm_init(void);
 
-vm_flags_t parse_vm_flags(size_t flags, bool large_pages);
+struct vm_flags parse_vm_flags(size_t flags, bool large_pages);
 
 #endif	// MEMORY_VMM_H

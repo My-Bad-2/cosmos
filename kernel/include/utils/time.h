@@ -1,9 +1,9 @@
 #ifndef UTILS_TIME_H
 #define UTILS_TIME_H
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 #define TIMESPEC_INITIALIZER ((timespec_t){0, 0})
 #define DATETIME_INITIALIZER ((datetime_t){0, 0, 0, 0, 0, 0})

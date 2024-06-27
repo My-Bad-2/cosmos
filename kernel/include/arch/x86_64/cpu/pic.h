@@ -9,4 +9,4 @@ void pic_disable(void);
 void pic_set_mask(uint8_t irq_line);
 void pic_clear_mask(uint8_t irq_line);
 
-#endif // CPU_PIC_H
+#endif	// CPU_PIC_H

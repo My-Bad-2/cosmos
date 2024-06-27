@@ -33,66 +33,66 @@ void pic_send_eoi(uint8_t irq) {
 }
 
 void pic_set_mask(uint8_t irq_line) {
-    uint16_t port = 0;
-    
-    if(irq_line < 8) {
-        port = PIC1_DATA;
-    } else {
-        port = PIC2_DATA;
-        irq_line -= 8;
-    }
+	uint16_t port = 0;
 
-    uint8_t value = inpb(port) | (1 << irq_line);
-    outpb(port, value);
+	if (irq_line < 8) {
+		port = PIC1_DATA;
+	} else {
+		port = PIC2_DATA;
+		irq_line -= 8;
+	}
+
+	uint8_t value = inpb(port) | (1 << irq_line);
+	outpb(port, value);
 }
 
 void pic_clear_mask(uint8_t irq_line) {
-    uint16_t port = 0;
-    
-    if(irq_line < 8) {
-        port = PIC1_DATA;
-    } else {
-        port = PIC2_DATA;
-        irq_line -= 8;
-    }
+	uint16_t port = 0;
 
-    uint8_t value = inpb(port) & ~(1 << irq_line);
-    outpb(port, value);
+	if (irq_line < 8) {
+		port = PIC1_DATA;
+	} else {
+		port = PIC2_DATA;
+		irq_line -= 8;
+	}
+
+	uint8_t value = inpb(port) & ~(1 << irq_line);
+	outpb(port, value);
 }
 
 void pic_disable(void) {
-    outpb(PIC1_DATA, 0xff);
-    outpb(PIC2_DATA, 0xff);
+	outpb(PIC1_DATA, 0xff);
+	outpb(PIC2_DATA, 0xff);
 }
 
 void pic_remap(uint8_t offset1, uint8_t offset2) {
-    // save masks
-    uint8_t mask1 = inpb(PIC1_DATA);
-    uint8_t mask2 = inpb(PIC2_DATA);
+	// save masks
+	uint8_t mask1 = inpb(PIC1_DATA);
+	uint8_t mask2 = inpb(PIC2_DATA);
 
-    // Start the initialization sequence
-    outpb(PIC1_COMMAND, ICW1_INIT | ICW1_ICW4);
-    outpb(PIC2_COMMAND, ICW1_INIT | ICW1_ICW4);
-    
-    // Master PIC vector offset
-    outpb(PIC1_DATA, offset1);
+	// Start the initialization sequence
+	outpb(PIC1_COMMAND, ICW1_INIT | ICW1_ICW4);
+	outpb(PIC2_COMMAND, ICW1_INIT | ICW1_ICW4);
 
-    // Slave PIC vector offset
-    outpb(PIC2_DATA, offset2);
+	// Master PIC vector offset
+	outpb(PIC1_DATA, offset1);
 
-    // Tell master PIC that there is a slave PIC at IRQ2 (0000 01000)
-    outpb(PIC1_DATA, 4);
+	// Slave PIC vector offset
+	outpb(PIC2_DATA, offset2);
 
-    // Tell slave PIC its cascade identity (0000 0010)
-    outpb(PIC2_DATA, 2);
+	// Tell master PIC that there is a slave PIC at IRQ2 (0000 01000)
+	outpb(PIC1_DATA, 4);
 
-    // Have the PICs use 8086 mode (and not 8080 mode)
-    outpb(PIC1_DATA, ICW4_8086);
-    outpb(PIC2_DATA, ICW4_8086);
+	// Tell slave PIC its cascade identity (0000 0010)
+	outpb(PIC2_DATA, 2);
 
-    // Restore saved masks
-    outpb(PIC1_DATA, mask1);
-    outpb(PIC2_DATA, mask2);
+	// Have the PICs use 8086 mode (and not 8080 mode)
+	outpb(PIC1_DATA, ICW4_8086);
+	outpb(PIC2_DATA, ICW4_8086);
 
-    log_info("Remapped Programmable Interrupt Controller!");
+	// Restore saved masks
+	outpb(PIC1_DATA, mask1);
+	outpb(PIC2_DATA, mask2);
+
+	log_info("Remapped Programmable Interrupt Controller!");
 }

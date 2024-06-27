@@ -6,18 +6,18 @@
 
 static uint8_t time_days_in_month[] = {
 	0,
-	31,		// January
-	28,		// February (not leap year)
-	31,		// March
-	30,		// April
-	31,		// May
-	30,		// June
-	31,		// July
-	31,		// August
-	30,		// September
-	31,	// October
-	30,	// November
-	31		// December
+	31,	 // January
+	28,	 // February (not leap year)
+	31,	 // March
+	30,	 // April
+	31,	 // May
+	30,	 // June
+	31,	 // July
+	31,	 // August
+	30,	 // September
+	31,	 // October
+	30,	 // November
+	31	 // December
 };
 
 time_t timespec_to_ns(timespec_t* timespec) {
@@ -74,7 +74,7 @@ uint16_t days_in_year(uint16_t year) {
 uint8_t days_in_month(enum calender_months month, uint16_t year) {
 	uint8_t days = time_days_in_month[(uint8_t)month];
 
-	if(month == February && is_leap_year(year)) {
+	if (month == February && is_leap_year(year)) {
 		days++;
 	}
 

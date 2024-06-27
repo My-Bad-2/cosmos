@@ -19,7 +19,7 @@ extern "C" {
 #define GDT_FLAGS_DB (1 << 2)
 #define GDT_FLAGS_LONG_MODE (1 << 1)
 
-typedef struct {
+struct tss {
 	uint32_t reserved1;
 	uint64_t rsp0;
 	uint64_t rsp1;
@@ -35,9 +35,9 @@ typedef struct {
 	uint64_t reserved3;
 	uint16_t reserved4;
 	uint16_t iopb;
-} __attribute__((packed)) tss_t;
+} __attribute__((packed));
 
-typedef struct {
+struct gdt_segment {
 	uint16_t limit_low;
 	uint16_t base_low;
 	uint8_t base_mid;
@@ -45,9 +45,9 @@ typedef struct {
 	uint8_t limit_high : 4;
 	uint8_t granularity : 4;
 	uint8_t base_high;
-} __attribute__((packed)) gdt_segment_t;
+} __attribute__((packed));
 
-typedef struct {
+struct tss_segment {
 	uint16_t len;
 	uint16_t base_low;
 	uint8_t base_mid;
@@ -56,21 +56,21 @@ typedef struct {
 	uint8_t base_high;
 	uint32_t base_upper;
 	uint32_t reserved;
-} __attribute__((packed)) tss_segment_t;
+} __attribute__((packed));
 
-typedef struct {
-	gdt_segment_t null;
-	gdt_segment_t kernel_code;
-	gdt_segment_t kernel_data;
-	gdt_segment_t user_data;
-	gdt_segment_t user_code;
-	tss_segment_t tss;
-} __attribute__((packed)) gdt_t;
+struct gdt_table {
+	struct gdt_segment null;
+	struct gdt_segment kernel_code;
+	struct gdt_segment kernel_data;
+	struct gdt_segment user_data;
+	struct gdt_segment user_code;
+	struct tss_segment tss;
+} __attribute__((packed));
 
-typedef struct {
+struct gdt_register {
 	uint16_t limit;
 	uint64_t base;
-} __attribute__((packed)) gdt_register_t;
+} __attribute__((packed));
 
 void gdt_init(void);
 

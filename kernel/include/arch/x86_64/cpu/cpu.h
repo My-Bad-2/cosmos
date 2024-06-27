@@ -21,16 +21,16 @@ extern "C" {
 	 (PAT_WRITE_PROTECTED << 40) | (PAT_WRITE_THROUGH << 32) |                 \
 	 (PAT_WRITE_COMBINING << 24) | (PAT_UNCACHABLE_STRONG << 16))
 
-#define CPUID_LEAF_INITIALIZER ((cpuid_leaf_t){0, 0, 0, 0})
+#define CPUID_LEAF_INITIALIZER ((struct cpuid_leaf){0, 0, 0, 0})
 
-typedef struct {
+struct cpuid_leaf {
 	uint32_t eax;
 	uint32_t ebx;
 	uint32_t ecx;
 	uint32_t edx;
-} cpuid_leaf_t;
+};
 
-bool cpuid(cpuid_leaf_t* cpuid_leaf, uint32_t leaf, uint32_t subleaf);
+bool cpuid(struct cpuid_leaf* cpuid_leaf, uint32_t leaf, uint32_t subleaf);
 
 uint64_t read_msr(uint32_t msr);
 void write_msr(uint32_t msr, uint64_t val);

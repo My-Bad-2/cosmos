@@ -1,16 +1,16 @@
 #include <cpu/gdt.h>
 #include <cpu/idt.h>
 #include <cpu/interrupts.h>
+#include <cpu/pic.h>
 #include <log.h>
 #include <memory/heap.h>
-#include <cpu/pic.h>
 
 #define KERNEL_CODE_SELECTOR (0x8)
 
 extern uint64_t int_table[];
-extern void load_idt(idt_register_t* idtr);
+extern void load_idt(struct idt_register* idtr);
 
-static void make_idt_segment(idt_segment_t* segment, uint64_t handler,
+static void make_idt_segment(struct idt_segment* segment, uint64_t handler,
 							 uint8_t ist, uint8_t attribute,
 							 uint16_t selector) {
 	segment->offset_low = handler & 0xffff;
@@ -23,15 +23,15 @@ static void make_idt_segment(idt_segment_t* segment, uint64_t handler,
 }
 
 void idt_init(void) {
-	idt_t* idt = heap_malloc(sizeof(idt_t));
+	struct idt_table* idt = heap_malloc(sizeof(struct idt_table));
 
 	for (int i = 0; i < IDT_MAX_ENTRY; ++i) {
 		make_idt_segment(&idt->entries[i], int_table[i], 0, IDT_INTERRUPT_GATE,
 						 KERNEL_CODE_SELECTOR);
 	}
 
-	idt_register_t idtr = {
-		(sizeof(idt_t) - 1),
+	struct idt_register idtr = {
+		(sizeof(struct idt_table) - 1),
 		(uintptr_t)idt,
 	};
 

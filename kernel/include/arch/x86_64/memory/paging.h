@@ -26,54 +26,54 @@ extern "C" {
 
 #define ENTRY_COUNT 512
 
-typedef struct {
+struct pte {
 	uint64_t entry;
-} pte_t;
+};
 
-typedef struct {
-	pte_t entries[ENTRY_COUNT];
-} __attribute__((aligned(0x1000))) pte_table_t;
+struct pte_table {
+	struct pte entries[ENTRY_COUNT];
+} __attribute__((aligned(0x1000)));
 
-extern pte_table_t* kernel_pagemap;
+extern struct pte_table* kernel_pagemap;
 
-bool pte_is_valid(pte_t* entry);
-bool pte_is_large(pte_t* entry);
+bool pte_is_valid(struct pte* entry);
+bool pte_is_large(struct pte* entry);
 
-void pte_set_address(pte_t* entry, phys_addr_t address);
-void pte_set_flags(pte_t* entry, size_t flags);
+void pte_set_address(struct pte* entry, phys_addr_t address);
+void pte_set_flags(struct pte* entry, size_t flags);
 
-size_t pte_get_flags(pte_t* entry);
-phys_addr_t pte_get_address(pte_t* entry);
+size_t pte_get_flags(struct pte* entry);
+phys_addr_t pte_get_address(struct pte* entry);
 
-void* get_next_pml(pte_table_t* curr_lvl, pte_t* entry, bool allocate,
+void* get_next_pml(struct pte_table* curr_lvl, struct pte* entry, bool allocate,
 				   virt_addr_t virt_addr, size_t opage_size, size_t page_size);
 
-bool map_page(pte_table_t* toplvl, phys_addr_t phys_addr, virt_addr_t virt_addr,
-			  size_t flags, size_t cache, bool lock);
-bool unmap_page(pte_table_t* toplvl, virt_addr_t virt_addr, size_t flags,
+bool map_page(struct pte_table* toplvl, phys_addr_t phys_addr,
+			  virt_addr_t virt_addr, size_t flags, size_t cache, bool lock);
+bool unmap_page(struct pte_table* toplvl, virt_addr_t virt_addr, size_t flags,
 				bool lock);
-bool remap_page(pte_table_t* toplvl, virt_addr_t new_virt_addr,
+bool remap_page(struct pte_table* toplvl, virt_addr_t new_virt_addr,
 				virt_addr_t old_virt_addr, size_t flags, size_t cache);
-bool setflags_page(pte_table_t* toplvl, virt_addr_t virt_addr, size_t flags,
-				   size_t cache, bool lock);
+bool setflags_page(struct pte_table* toplvl, virt_addr_t virt_addr,
+				   size_t flags, size_t cache, bool lock);
 
-bool map_pages(pte_table_t* toplvl, phys_addr_t phys_addr,
+bool map_pages(struct pte_table* toplvl, phys_addr_t phys_addr,
 			   virt_addr_t virt_addr, size_t size, size_t flags, size_t cache);
-bool unmap_pages(pte_table_t* toplvl, virt_addr_t virt_addr, size_t size,
+bool unmap_pages(struct pte_table* toplvl, virt_addr_t virt_addr, size_t size,
 				 size_t flags);
-bool remap_pages(pte_table_t* toplvl, virt_addr_t new_virt_addr,
+bool remap_pages(struct pte_table* toplvl, virt_addr_t new_virt_addr,
 				 virt_addr_t old_virt_addr, size_t size, size_t flags,
 				 size_t cache);
-bool setflags_pages(pte_table_t* toplvl, virt_addr_t virt_addr, size_t flags,
-					size_t size, size_t cache);
+bool setflags_pages(struct pte_table* toplvl, virt_addr_t virt_addr,
+					size_t flags, size_t size, size_t cache);
 
-phys_addr_t virt_to_phys_addr(pte_table_t* toplvl, virt_addr_t virt_addr,
+phys_addr_t virt_to_phys_addr(struct pte_table* toplvl, virt_addr_t virt_addr,
 							  size_t flags);
 
-void load_paging(pte_table_t* toplvl);
-pte_table_t* save_paging(void);
+void load_paging(struct pte_table* toplvl);
+struct pte_table* save_paging(void);
 
-void initialize_pagemap(pte_table_t* toplvl);
+void initialize_pagemap(struct pte_table* toplvl);
 
 #ifdef __cplusplus
 }
