@@ -2,6 +2,7 @@
 #define MEMORY_VMM_H
 
 #include <memory/addr.h>
+#include <utils/rbtree.h>
 
 #define VMM_FLAG_READ (1 << 0)
 #define VMM_FLAG_WRITE (1 << 1)

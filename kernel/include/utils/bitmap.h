@@ -5,25 +5,25 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#define BITMAP_INITIALIZER ((bitmap_t){NULL, 0})
+#define BITMAP_INITIALIZER ((struct bitmap){NULL, 0})
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
+struct bitmap {
 	uint8_t* buffer;
 	size_t size;
-} bitmap_t;
+};
 
-bitmap_t new_bitmap(uint8_t* buffer, size_t size);
+struct bitmap new_bitmap(uint8_t* buffer, size_t size);
 
-bool bitmap_get(bitmap_t* bitmap, size_t index);
-void bitmap_set(bitmap_t* bitmap, size_t index);
-void bitmap_clear(bitmap_t* bitmap, size_t index);
-void bitmap_fill(bitmap_t* bitmap, bool val);
+bool bitmap_get(struct bitmap* bitmap, size_t index);
+void bitmap_set(struct bitmap* bitmap, size_t index);
+void bitmap_clear(struct bitmap* bitmap, size_t index);
+void bitmap_fill(struct bitmap* bitmap, bool val);
 
-size_t bitmap_entries(const bitmap_t* bitmap);
+size_t bitmap_entries(const struct bitmap* bitmap);
 
 #ifdef __cplusplus
 }

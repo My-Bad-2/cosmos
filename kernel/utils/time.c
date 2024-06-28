@@ -20,15 +20,15 @@ static uint8_t time_days_in_month[] = {
 	31	 // December
 };
 
-time_t timespec_to_ns(timespec_t* timespec) {
+time_t timespec_to_ns(struct timespec* timespec) {
 	return (timespec->seconds * NS_MAX) + timespec->nseconds;
 }
 
-time_t timespec_to_ms(timespec_t* timespec) {
+time_t timespec_to_ms(struct timespec* timespec) {
 	return timespec_to_ns(timespec) / MS_MAX;
 }
 
-void timespec_add(timespec_t* lhs, timespec_t* rhs) {
+void timespec_add(struct timespec* lhs, struct timespec* rhs) {
 	lhs->seconds += rhs->seconds;
 	lhs->nseconds += rhs->nseconds;
 
@@ -38,12 +38,12 @@ void timespec_add(timespec_t* lhs, timespec_t* rhs) {
 	}
 }
 
-void timespec_add_ns(timespec_t* lhs, time_t ns) {
-	timespec_t rhs = {0, ns};
+void timespec_add_ns(struct timespec* lhs, time_t ns) {
+	struct timespec rhs = {0, ns};
 	timespec_add(lhs, &rhs);
 }
 
-void timespec_sub(timespec_t* lhs, timespec_t* rhs) {
+void timespec_sub(struct timespec* lhs, struct timespec* rhs) {
 	lhs->seconds -= rhs->seconds;
 	lhs->nseconds -= rhs->nseconds;
 
@@ -58,8 +58,8 @@ void timespec_sub(timespec_t* lhs, timespec_t* rhs) {
 	}
 }
 
-void timespec_sub_ns(timespec_t* lhs, time_t ns) {
-	timespec_t rhs = {0, ns};
+void timespec_sub_ns(struct timespec* lhs, time_t ns) {
+	struct timespec rhs = {0, ns};
 	timespec_sub(lhs, &rhs);
 }
 

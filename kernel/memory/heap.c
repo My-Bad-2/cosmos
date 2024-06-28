@@ -12,7 +12,7 @@
 	(((struct slab_header*)((virt_addr_t)address & ~0xfff))->slab)
 
 struct heap_slab {
-	lock_t lock;
+	struct lock lock;
 	virt_addr_t first_free;
 	size_t size;
 };

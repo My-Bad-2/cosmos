@@ -10,8 +10,8 @@
 #include <utils/math.h>
 #include <utils/sync.h>
 
-static bitmap_t phys_bitmap = BITMAP_INITIALIZER;
-static lock_t phys_lock = LOCK_INITIALIZER;
+static struct bitmap phys_bitmap = BITMAP_INITIALIZER;
+static struct lock phys_lock = LOCK_INITIALIZER;
 static phys_addr_t highest_usable_addr = 0;
 static size_t last_index = 0;
 static phys_addr_t phys_highest_address = 0;

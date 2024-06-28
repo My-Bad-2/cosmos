@@ -6,7 +6,7 @@
 #include <memory/vmm.h>
 #include <utils/sync.h>
 
-static lock_t vm_lock = LOCK_INITIALIZER;
+static struct lock vm_lock = LOCK_INITIALIZER;
 static bool pml3_translation = false;
 
 void pte_set_flags(struct pte* entry, size_t flags) {

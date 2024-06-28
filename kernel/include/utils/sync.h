@@ -4,21 +4,21 @@
 #include <stdatomic.h>
 #include <stdbool.h>
 
-#define LOCK_INITIALIZER ((lock_t){0, 0})
+#define LOCK_INITIALIZER ((struct lock){0, 0})
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-typedef struct {
+struct lock {
 	atomic_size_t next_ticket;
 	atomic_size_t serving_ticket;
-} lock_t;
+};
 
-void lock_acquire(lock_t* lock);
-void lock_release(lock_t* lock);
-bool lock_is_locked(lock_t* lock);
-bool try_lock(lock_t* lock);
+void lock_acquire(struct lock* lock);
+void lock_release(struct lock* lock);
+bool lock_is_locked(struct lock* lock);
+bool try_lock(struct lock* lock);
 
 #ifdef __cplusplus
 }
