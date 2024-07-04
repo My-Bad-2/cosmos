@@ -45,6 +45,14 @@ uint32_t inpl(uint16_t port) {
 	return ret;
 }
 
+size_t arch_cpu_flags(void) {
+	size_t rflags = 0;
+	asm volatile("pushfq \n\t"
+				 "pop %[rflags]"
+				 : [rflags] "=r"(rflags));
+	return rflags;
+}
+
 void arch_putc(int ch) {
 	serials_putc(SERIAL_COM_DEFAULT, ch);
 }

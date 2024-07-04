@@ -1,0 +1,1 @@
+kernel_sources += files('glue.c', 'acpi.c')

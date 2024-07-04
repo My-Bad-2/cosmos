@@ -14,6 +14,7 @@ kernel_include += limine_subproject_include
 subdir('arch' / get_option('kernel-arch'))
 subdir('memory')
 subdir('utils')
+subdir('drivers')
 
 clangtidy_files += kernel_sources
 

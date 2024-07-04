@@ -7,6 +7,7 @@
 
 struct interrupt_handler {
 	interrupt_handler_t handler;
+	void* ctx;
 	int vector_id;
 	bool reserved;
 };
@@ -24,7 +25,8 @@ void interrupt_handler_init(void) {
 	}
 }
 
-void allocate_irq_handler(int irq_number, interrupt_handler_t handler) {
+void allocate_irq_handler(int irq_number, interrupt_handler_t handler,
+						  void* ctx) {
 	assert(irq_number >= 32 && irq_number <= 48);
 
 	if (interrupt_handlers[irq_number].reserved) {
@@ -33,17 +35,19 @@ void allocate_irq_handler(int irq_number, interrupt_handler_t handler) {
 	}
 
 	interrupt_handlers[irq_number].handler = handler;
+	interrupt_handlers[irq_number].ctx = ctx;
 	interrupt_handlers[irq_number].vector_id = irq_number;
 	interrupt_handlers[irq_number].reserved = true;
 }
 
-int allocate_interrupt_handler(interrupt_handler_t handler) {
+int allocate_interrupt_handler(interrupt_handler_t handler, void* ctx) {
 	for (int i = 49; i < IDT_MAX_ENTRY; ++i) {
 		if (interrupt_handlers[i].reserved) {
 			continue;
 		}
 
 		interrupt_handlers[i].handler = handler;
+		interrupt_handlers[i].ctx = ctx;
 		interrupt_handlers[i].vector_id = i;
 		interrupt_handlers[i].reserved = true;
 
@@ -54,12 +58,14 @@ int allocate_interrupt_handler(interrupt_handler_t handler) {
 	return 0;
 }
 
-void allocate_interrupt_handler_at(interrupt_handler_t handler, int vector) {
+void allocate_interrupt_handler_at(interrupt_handler_t handler, int vector,
+								   void* ctx) {
 	if (interrupt_handlers[vector].reserved) {
 		log_fatal("Interrupt handler is reserved.");
 	}
 
 	interrupt_handlers[vector].handler = handler;
+	interrupt_handlers[vector].ctx = ctx;
 	interrupt_handlers[vector].vector_id = vector;
 	interrupt_handlers[vector].reserved = true;
 }
@@ -73,7 +79,8 @@ void call_interrupt_handler(struct iframe* iframe) {
 		log_fatal("Interrupt handler not allocated.");
 	}
 
-	interrupt_handlers[iframe->vector].handler(iframe);
+	void* ctx = interrupt_handlers[iframe->vector].ctx;
+	interrupt_handlers[iframe->vector].handler(iframe, ctx);
 }
 
 void set_interrupt_mask(int vector) {
@@ -82,4 +89,15 @@ void set_interrupt_mask(int vector) {
 
 void clear_interrupt_mask(int vector) {
 	pic_clear_mask(vector);
+}
+
+void clear_interrupt_handler(int vector) {
+	if (interrupt_handlers[vector].reserved != true) {
+		log_fatal("Interrupt handler not registered.");
+	}
+
+	interrupt_handlers[vector].handler = NULL;
+	interrupt_handlers[vector].ctx = NULL;
+	interrupt_handlers[vector].vector_id = 0;
+	interrupt_handlers[vector].reserved = false;
 }

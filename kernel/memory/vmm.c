@@ -1,33 +1,14 @@
 #include <assert.h>
 #include <log.h>
+#include <memory/heap.h>
 #include <memory/memory.h>
 #include <memory/paging.h>
 #include <memory/phys.h>
 #include <memory/vmm.h>
 
+#define is_power_of_two(n) (((n) & ((n) - 1)) == 0)
+
 struct pte_table* kernel_pagemap = NULL;
-
-static size_t get_required_size(size_t size) {
-	if (size >= PAGE_SIZE_1GiB) {
-		return PAGE_SIZE_1GiB;
-	} else if (size >= PAGE_SIZE_2MiB) {
-		return PAGE_SIZE_2MiB;
-	}
-
-	return PAGE_SIZE_4KiB;
-}
-
-static size_t page_size_flags(size_t page_size) {
-	if (page_size == PAGE_SIZE_1GiB) {
-		return VMM_FLAG_HUGE_PAGE;
-	}
-
-	if (page_size == PAGE_SIZE_2MiB) {
-		return VMM_FLAG_LARGE_PAGE;
-	}
-
-	return 0;
-}
 
 void* get_next_pml(struct pte_table* curr_lvl, struct pte* entry, bool allocate,
 				   virt_addr_t virt_addr, size_t opage_size, size_t page_size) {
@@ -141,4 +122,16 @@ void vmm_init(void) {
 	load_paging(kernel_pagemap);
 
 	log_info("Initialized Virtual Memory Manager!");
+}
+
+// Temp fix until virtual memory allocator is implemented
+void* virt_alloc(size_t size, size_t alignment) {
+	assert(is_power_of_two(alignment));
+
+	size_t alloc_size = alignment ? align_up(size, alignment) : size;
+	return heap_malloc(alloc_size);
+}
+
+void virt_free(void* ptr) {
+	heap_free(ptr);
 }

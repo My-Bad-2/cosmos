@@ -16,14 +16,17 @@
 #define INTERRUPT_IPI_INTERRUPT 0xf6
 #define INTERRUPT_IPI_HALT 0xf7
 
-typedef void (*interrupt_handler_t)(struct iframe* iframe);
+typedef uint32_t (*interrupt_handler_t)(struct iframe* iframe, void* ctx);
 
 void interrupt_handler_init(void);
 
-int allocate_interrupt_handler(interrupt_handler_t handler);
-void allocate_interrupt_handler_at(interrupt_handler_t handler, int vector);
-void allocate_irq_handler(int irq_number, interrupt_handler_t handler);
+int allocate_interrupt_handler(interrupt_handler_t handler, void* ctx);
+void allocate_interrupt_handler_at(interrupt_handler_t handler, int vector,
+								   void* ctx);
+void allocate_irq_handler(int irq_number, interrupt_handler_t handler,
+						  void* ctx);
 void call_interrupt_handler(struct iframe* iframe);
+void clear_interrupt_handler(int vector);
 
 void set_interrupt_mask(int vector);
 void clear_interrupt_mask(int vector);
