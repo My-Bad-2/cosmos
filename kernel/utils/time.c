@@ -4,6 +4,9 @@
 #define NS_MAX 1000000000
 #define MS_MAX 1000000
 
+#define EPOCH_YEAR 1970
+#define DEFAULT_YEAR 2024
+
 static uint8_t time_days_in_month[] = {
 	0,
 	31,	 // January
@@ -19,6 +22,15 @@ static uint8_t time_days_in_month[] = {
 	30,	 // November
 	31	 // December
 };
+
+struct timespec initialize_timespec(time_t sec, long ns) {
+	struct timespec result;
+
+	result.seconds = sec + (ns / 1000000000);
+	result.nseconds = ns % 1000000000;
+
+	return result;
+}
 
 time_t timespec_to_ns(struct timespec* timespec) {
 	return (timespec->seconds * NS_MAX) + timespec->nseconds;
@@ -79,4 +91,24 @@ uint8_t days_in_month(enum calender_months month, uint16_t year) {
 	}
 
 	return days;
+}
+
+size_t calculate_epoch(struct datetime datetime) {
+	uint64_t days_since_epoch = 0;
+
+	for (uint16_t year = EPOCH_YEAR; year < datetime.year; year++) {
+		days_since_epoch += days_in_year(year);
+	}
+
+	for (uint8_t month = January; month < datetime.month; month++) {
+		days_since_epoch += days_in_month(month, datetime.year);
+	}
+
+	days_since_epoch += datetime.day - 1;
+
+	size_t hours_since_epoch = (days_since_epoch * 24) + datetime.hours;
+	size_t minutes_since_epoch = (hours_since_epoch * 60) + datetime.minutes;
+	size_t seconds_since_epoch = (minutes_since_epoch * 60) + datetime.seconds;
+
+	return seconds_since_epoch;
 }

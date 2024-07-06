@@ -1,12 +1,15 @@
-#include "uacpi/status.h"
 #include <arch.h>
 #include <assert.h>
-#include <cpu/interrupts.h>
 #include <log.h>
+#include <stdlib.h>
+
+#include <cpu/interrupts.h>
+
 #include <memory/paging.h>
 #include <memory/vmm.h>
-#include <stdlib.h>
+
 #include <uacpi/kernel_api.h>
+
 #include <utils/mmio.h>
 #include <utils/sync.h>
 
@@ -227,7 +230,7 @@ void uacpi_kernel_spinlock_unlock(uacpi_handle handle, uacpi_cpu_flags flags) {
 uacpi_status uacpi_kernel_install_interrupt_handler(
 	uacpi_u32 irq, uacpi_interrupt_handler handler, uacpi_handle ctx,
 	uacpi_handle* out_irq_handle) {
-	allocate_interrupt_handler_at((interrupt_handler_t)handler, irq, ctx);
+	uacpi_allocate_interrupt_handler(handler, irq, ctx);
 	clear_interrupt_mask(irq);
 
 	*(size_t*)out_irq_handle = irq;
@@ -239,7 +242,7 @@ uacpi_status uacpi_kernel_uninstall_interrupt_handler(uacpi_interrupt_handler,
 	size_t vector = *(size_t*)irq_handle;
 	set_interrupt_mask(vector);
 
-	clear_interrupt_handler(vector);
+	deallocate_interrupt_handler(vector);
 
 	return UACPI_STATUS_OK;
 }

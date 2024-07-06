@@ -1,103 +1,126 @@
-#include <assert.h>
 #include <cpu/idt.h>
 #include <cpu/interrupts.h>
 #include <cpu/pic.h>
 #include <log.h>
-#include <memory/heap.h>
+#include <stdlib.h>
 
-struct interrupt_handler {
-	interrupt_handler_t handler;
-	void* ctx;
-	int vector_id;
-	bool reserved;
-};
+#define INTERRUPT_TO_IRQ(x) ((x) - 0x20)
 
 struct interrupt_handler* interrupt_handlers = NULL;
 
+static inline bool is_handler_reserved(struct interrupt_handler* handler) {
+	return (handler->reserved == true);
+}
+
+// clang-format off
+
+static inline bool reserve_interrupt_handler(struct interrupt_handler* handler) {
+	if (is_handler_reserved(handler)) {
+		return false;
+	}
+
+	return handler->reserved = true;
+}
+
+// clang-format on
+
+static inline bool reset_handler(struct interrupt_handler* handler) {
+	bool ret = (bool)handler->handler;
+
+	handler->handler = NULL;
+	handler->uacpi_handler = NULL;
+	handler->ctx = NULL;
+	handler->reserved = false;
+	handler->eoi_first = false;
+
+	return ret;
+}
+
+static inline void send_eoi(int vector) {
+	pic_send_eoi(INTERRUPT_TO_IRQ(vector));
+}
+
 void interrupt_handler_init(void) {
-	interrupt_handlers =
-		heap_malloc(sizeof(struct interrupt_handler) * IDT_MAX_ENTRY);
+	interrupt_handlers = calloc(PLATFORM_INTERRUPT_MAX + 1, sizeof(struct interrupt_handler));
 
-	for (int i = 0; i < 32; ++i) {
-		interrupt_handlers[i].handler = NULL;
-		interrupt_handlers[i].reserved = true;
-		interrupt_handlers[i].vector_id = i;
+	for(size_t i = 0; i < PLATFORM_INTERRUPT_BASE; i++) {
+		reserve_interrupt_handler(&interrupt_handlers[i]);
 	}
 }
 
-void allocate_irq_handler(int irq_number, interrupt_handler_t handler,
-						  void* ctx) {
-	assert(irq_number >= 32 && irq_number <= 48);
-
-	if (interrupt_handlers[irq_number].reserved) {
-		log_warn("IRQ %d is already allocated!", irq_number);
-		return;
+struct interrupt_handler* allocate_handler(int hint,
+										   interrupt_handler_t handler) {
+	if (hint < PLATFORM_INTERRUPT_BASE) {
+		hint += IRQ_TO_INTERRUPT(0);
 	}
 
-	interrupt_handlers[irq_number].handler = handler;
-	interrupt_handlers[irq_number].ctx = ctx;
-	interrupt_handlers[irq_number].vector_id = irq_number;
-	interrupt_handlers[irq_number].reserved = true;
-}
+	for (int i = hint; i <= PLATFORM_INTERRUPT_MAX; i++) {
+		if (is_handler_reserved(&interrupt_handlers[i]) == false) {
+			struct interrupt_handler* int_handler = &interrupt_handlers[i];
+			reserve_interrupt_handler(int_handler);
 
-int allocate_interrupt_handler(interrupt_handler_t handler, void* ctx) {
-	for (int i = 49; i < IDT_MAX_ENTRY; ++i) {
-		if (interrupt_handlers[i].reserved) {
-			continue;
+			int_handler->handler = handler;
+			int_handler->uacpi_handler = NULL;
+			int_handler->ctx = NULL;
+			int_handler->vector_id = i;
+			int_handler->eoi_first = false;
+
+			return int_handler;
 		}
-
-		interrupt_handlers[i].handler = handler;
-		interrupt_handlers[i].ctx = ctx;
-		interrupt_handlers[i].vector_id = i;
-		interrupt_handlers[i].reserved = true;
-
-		return i;
 	}
 
-	log_fatal("Out of interrupt handlers!");
-	return 0;
+	log_fatal("Out of Interrupt Handlers");
+	return NULL;
 }
 
-void allocate_interrupt_handler_at(interrupt_handler_t handler, int vector,
-								   void* ctx) {
-	if (interrupt_handlers[vector].reserved) {
-		log_fatal("Interrupt handler is reserved.");
+void uacpi_allocate_interrupt_handler(uacpi_interrupt_handler handler,
+									  int vector, void* ctx) {
+	struct interrupt_handler* int_handler = &interrupt_handlers[vector];
+
+	if (is_handler_reserved(int_handler)) {
+		log_fatal("UACPI Interrupt handler is already reserved");
 	}
 
-	interrupt_handlers[vector].handler = handler;
-	interrupt_handlers[vector].ctx = ctx;
-	interrupt_handlers[vector].vector_id = vector;
-	interrupt_handlers[vector].reserved = true;
+	reserve_interrupt_handler(int_handler);
+	
+	int_handler->handler = NULL;
+	int_handler->uacpi_handler = handler;
+	int_handler->ctx = ctx;
+	int_handler->vector_id = vector;
+	int_handler->eoi_first = false;
 }
 
-void call_interrupt_handler(struct iframe* iframe) {
-	if (interrupt_handlers[iframe->vector].handler == NULL) {
-		log_fatal("Interrupt handler not allocated.");
-	}
-
-	if (!interrupt_handlers[iframe->vector].reserved) {
-		log_fatal("Interrupt handler not allocated.");
-	}
-
-	void* ctx = interrupt_handlers[iframe->vector].ctx;
-	interrupt_handlers[iframe->vector].handler(iframe, ctx);
+void deallocate_interrupt_handler(int vector) {
+	struct interrupt_handler* int_handler = &interrupt_handlers[vector];
+	reset_handler(int_handler);
 }
 
 void set_interrupt_mask(int vector) {
-	pic_set_mask(vector);
+	pic_set_mask(INTERRUPT_TO_IRQ(vector));
 }
 
 void clear_interrupt_mask(int vector) {
-	pic_clear_mask(vector);
+	pic_clear_mask(INTERRUPT_TO_IRQ(vector));
 }
 
-void clear_interrupt_handler(int vector) {
-	if (interrupt_handlers[vector].reserved != true) {
-		log_fatal("Interrupt handler not registered.");
+void call_interrupt_handler(struct iframe* iframe) {
+	struct interrupt_handler* handler = &interrupt_handlers[iframe->vector];
+
+	if(is_handler_reserved(handler) == false) {
+		log_fatal("Interrupt Handler %lu not reserved", iframe->vector);
 	}
 
-	interrupt_handlers[vector].handler = NULL;
-	interrupt_handlers[vector].ctx = NULL;
-	interrupt_handlers[vector].vector_id = 0;
-	interrupt_handlers[vector].reserved = false;
+	if(handler->eoi_first) {
+		send_eoi(handler->vector_id);
+	}
+
+	if(handler->uacpi_handler != NULL) {
+		handler->uacpi_handler(handler->ctx);
+	} else {
+		handler->handler(iframe);
+	}
+
+	if(handler->eoi_first == false) {
+		send_eoi(handler->vector_id);
+	}
 }

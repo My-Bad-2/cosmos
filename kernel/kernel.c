@@ -1,6 +1,7 @@
 #include <arch.h>
 #include <kernel.h>
 #include <log.h>
+#include <drivers/drivers.h>
 #include <memory/memory.h>
 
 // clang-format off
@@ -69,6 +70,8 @@ void kmain() {
 
 	memory_init();
 	arch_init();
+
+	drivers_init();
 
 	log_info("Hello World!");
 

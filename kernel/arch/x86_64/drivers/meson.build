@@ -1,0 +1,1 @@
+kernel_sources += files('rtc.c', 'arch_timer.c')
