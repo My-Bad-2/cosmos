@@ -4,8 +4,8 @@
 #include <drivers/rtc.h>
 #include <drivers/timer.h>
 #include <log.h>
-#include <utils/fixed_point.h>
 #include <stdatomic.h>
+#include <utils/fixed_point.h>
 
 #define DESIRED_PIT_FREQUENCY 1000
 
@@ -76,7 +76,8 @@ void arch_timer_init(void) {
 	switch (source) {
 		case CLOCK_PIT:
 			set_pit_frequency(DESIRED_PIT_FREQUENCY);
-			struct interrupt_handler* handler = allocate_handler(IRQ_TIMER, handle_pit_interrupt);
+			struct interrupt_handler* handler =
+				allocate_handler(IRQ_TIMER, handle_pit_interrupt);
 			handler->eoi_first = true;
 			clear_interrupt_mask(IRQ_TIMER);
 			break;
@@ -95,6 +96,19 @@ void timer_sleep_ms(size_t ms) {
 			log_fatal("Unknown clock source!");
 			break;
 	}
+}
+
+size_t timer_get_current_time(void) {
+	switch (source) {
+		case CLOCK_PIT:
+			return current_ticks_pit();
+			break;
+		default:
+			log_fatal("Unknown clock source!");
+			break;
+	}
+
+	return 0;
 }
 
 struct datetime fetch_current_time(void) {

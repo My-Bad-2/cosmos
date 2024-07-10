@@ -11,4 +11,6 @@ void acpi_init(virt_addr_t rsdp_address) {
 	};
 
 	assert(uacpi_initialize(&uacpi_params) == UACPI_STATUS_OK);
+
+	madt_init();
 }

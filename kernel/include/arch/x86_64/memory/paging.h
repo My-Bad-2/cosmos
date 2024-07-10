@@ -71,9 +71,11 @@ phys_addr_t virt_to_phys_addr(struct pte_table* toplvl, virt_addr_t virt_addr,
 							  size_t flags);
 
 void load_paging(struct pte_table* toplvl);
+void reload_pagemap(void);
 struct pte_table* save_paging(void);
 
 void initialize_pagemap(struct pte_table* toplvl);
+void destroy_pagemap(struct pte_table* toplvl);
 
 #ifdef __cplusplus
 }

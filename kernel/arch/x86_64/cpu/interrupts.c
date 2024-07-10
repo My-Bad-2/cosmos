@@ -41,9 +41,10 @@ static inline void send_eoi(int vector) {
 }
 
 void interrupt_handler_init(void) {
-	interrupt_handlers = calloc(PLATFORM_INTERRUPT_MAX + 1, sizeof(struct interrupt_handler));
+	interrupt_handlers =
+		calloc(PLATFORM_INTERRUPT_MAX + 1, sizeof(struct interrupt_handler));
 
-	for(size_t i = 0; i < PLATFORM_INTERRUPT_BASE; i++) {
+	for (size_t i = 0; i < PLATFORM_INTERRUPT_BASE; i++) {
 		reserve_interrupt_handler(&interrupt_handlers[i]);
 	}
 }
@@ -82,7 +83,7 @@ void uacpi_allocate_interrupt_handler(uacpi_interrupt_handler handler,
 	}
 
 	reserve_interrupt_handler(int_handler);
-	
+
 	int_handler->handler = NULL;
 	int_handler->uacpi_handler = handler;
 	int_handler->ctx = ctx;
@@ -106,21 +107,21 @@ void clear_interrupt_mask(int vector) {
 void call_interrupt_handler(struct iframe* iframe) {
 	struct interrupt_handler* handler = &interrupt_handlers[iframe->vector];
 
-	if(is_handler_reserved(handler) == false) {
+	if (is_handler_reserved(handler) == false) {
 		log_fatal("Interrupt Handler %lu not reserved", iframe->vector);
 	}
 
-	if(handler->eoi_first) {
+	if (handler->eoi_first) {
 		send_eoi(handler->vector_id);
 	}
 
-	if(handler->uacpi_handler != NULL) {
+	if (handler->uacpi_handler != NULL) {
 		handler->uacpi_handler(handler->ctx);
 	} else {
 		handler->handler(iframe);
 	}
 
-	if(handler->eoi_first == false) {
+	if (handler->eoi_first == false) {
 		send_eoi(handler->vector_id);
 	}
 }

@@ -1,5 +1,6 @@
 #include <drivers/arch_timer.h>
 #include <drivers/timer.h>
+#include <arch.h>
 
 struct timespec realtime_clock;
 struct timespec monotonic_clock;
@@ -16,4 +17,16 @@ void timer_handler(size_t ns) {
 
 	timespec_add(&realtime_clock, &interval);
 	timespec_add(&monotonic_clock, &interval);
+}
+
+size_t time_ns(void) {
+	return timespec_to_ns(&monotonic_clock);
+}
+
+void timer_sleep_ns(size_t ns) {
+	size_t target = time_ns() + ns;
+
+	while(time_ns() < target) {
+		arch_pause();
+	}
 }

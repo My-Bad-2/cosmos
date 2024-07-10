@@ -1,3 +1,3 @@
-kernel_sources += files('timer.c')
+kernel_sources += files('timer.c', 'drivers.c')
 
 subdir('acpi')

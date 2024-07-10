@@ -4,12 +4,10 @@
 #include <stdlib.h>
 
 #include <cpu/interrupts.h>
-
+#include <drivers/timer.h>
 #include <memory/paging.h>
 #include <memory/vmm.h>
-
 #include <uacpi/kernel_api.h>
-
 #include <utils/mmio.h>
 #include <utils/sync.h>
 
@@ -261,4 +259,100 @@ uacpi_kernel_handle_firmware_request(uacpi_firmware_request* request) {
 	}
 
 	return UACPI_STATUS_OK;
+}
+
+uacpi_bool uacpi_kernel_acquire_mutex(uacpi_handle handle, uacpi_u16 timeout) {
+	struct lock* lock = (struct lock*)handle;
+
+	if (timeout == 0xffff) {
+		try_lock(lock);
+		return true;
+	}
+
+	uacpi_u16 sleep_time;
+
+	do {
+		if (try_lock(lock)) {
+			return true;
+		}
+
+		sleep_time = (timeout > 10) ? 10 : timeout;
+		timeout -= sleep_time;
+
+		if (sleep_time) {
+			uacpi_kernel_sleep(sleep_time);
+		}
+	} while (timeout);
+
+	return false;
+}
+
+void uacpi_kernel_sleep(uacpi_u64 msec) {
+	timer_sleep_ms(msec);
+}
+
+void uacpi_kernel_stall(uacpi_u8 usec) {
+	timer_sleep_ns(usec * 1000);
+}
+
+uacpi_u64 uacpi_kernel_get_ticks() {
+	return time_ns() / 100;
+}
+
+uacpi_status uacpi_kernel_wait_for_work_completion() {
+	return UACPI_STATUS_UNIMPLEMENTED;
+}
+
+uacpi_status uacpi_kernel_schedule_work(uacpi_work_type, uacpi_work_handler,
+										uacpi_handle ctx) {
+	(void)ctx;
+	return UACPI_STATUS_UNIMPLEMENTED;
+}
+
+uacpi_thread_id uacpi_kernel_get_thread_id() {
+	log_fatal("Unimplemented");
+	return 0;
+}
+
+void uacpi_kernel_reset_event(uacpi_handle) {
+	log_fatal("Unimplemented");
+}
+
+void uacpi_kernel_signal_event(uacpi_handle) {
+	log_fatal("Unimplemented");
+}
+
+uacpi_bool uacpi_kernel_wait_for_event(uacpi_handle, uacpi_u16) {
+	log_fatal("Unimplemented");
+
+	return false;
+}
+
+uacpi_handle uacpi_kernel_create_event() {
+	log_fatal("Unimplemented");
+	return NULL;
+}
+
+uacpi_status uacpi_kernel_pci_read(uacpi_pci_address* address,
+								   uacpi_size offset, uacpi_u8 byte_width,
+								   uacpi_u64* value) {
+	(void)address;
+	(void)offset;
+	(void)byte_width;
+	(void)value;
+	return UACPI_STATUS_UNIMPLEMENTED;
+}
+
+uacpi_status uacpi_kernel_pci_write(uacpi_pci_address* address,
+									uacpi_size offset, uacpi_u8 byte_width,
+									uacpi_u64 value) {
+	(void)address;
+	(void)offset;
+	(void)byte_width;
+	(void)value;
+	return UACPI_STATUS_UNIMPLEMENTED;
+}
+
+void uacpi_kernel_free_event(uacpi_handle) {
+	log_fatal("Unimplemented");
 }

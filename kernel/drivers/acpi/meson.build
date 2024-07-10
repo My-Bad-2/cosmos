@@ -1,1 +1,1 @@
-kernel_sources += files('glue.c', 'acpi.c')
+kernel_sources += files('glue.c', 'acpi.c', 'madt.c')

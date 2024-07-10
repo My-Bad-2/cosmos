@@ -3,6 +3,7 @@
 #include <log.h>
 #include <drivers/drivers.h>
 #include <memory/memory.h>
+#include <utils/vector.h>
 
 // clang-format off
 

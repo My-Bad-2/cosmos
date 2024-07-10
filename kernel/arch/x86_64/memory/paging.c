@@ -1,8 +1,10 @@
 #include <log.h>
 
 #include <cpu/cpu.h>
+#include <memory/addr.h>
 #include <memory/memory.h>
 #include <memory/paging.h>
+#include <memory/phys.h>
 #include <memory/vmm.h>
 #include <utils/sync.h>
 
@@ -323,6 +325,8 @@ bool map_pages(struct pte_table* toplvl, phys_addr_t phys_addr,
 		}
 	}
 
+	reload_pagemap();
+
 	return true;
 }
 
@@ -335,6 +339,8 @@ bool unmap_pages(struct pte_table* toplvl, virt_addr_t virt_addr, size_t size,
 			return false;
 		}
 	}
+
+	reload_pagemap();
 
 	return true;
 }
@@ -376,6 +382,11 @@ bool setflags_pages(struct pte_table* toplvl, virt_addr_t virt_addr,
 
 void load_paging(struct pte_table* toplvl) {
 	write_cr3(from_higher_half((virt_addr_t)toplvl));
+}
+
+void reload_pagemap() {
+	uintptr_t tmp = read_cr3();
+	write_cr3(tmp);
 }
 
 struct pte_table* save_paging(void) {
@@ -447,5 +458,34 @@ void initialize_pagemap(struct pte_table* toplvl) {
 		for (size_t i = (ENTRY_COUNT / 2); i < ENTRY_COUNT; ++i) {
 			toplvl->entries[i] = kernel_pagemap->entries[i];
 		}
+	}
+}
+
+static inline void destroy_level(struct pte_table* toplvl,
+								 struct pte_table* pml, size_t start,
+								 size_t end, size_t lvl) {
+	if ((lvl == 0) || (pml == NULL)) {
+		return;
+	}
+
+	for (size_t i = start; i < end; i++) {
+		struct pte_table* next =
+			get_next_pml(toplvl, &pml->entries[i], false, -1, -1, -1);
+
+		if (next == NULL) {
+			continue;
+		}
+
+		destroy_level(toplvl, next, 0, 512, lvl - 1);
+	}
+
+	free_phys_page((void*)from_higher_half((virt_addr_t)pml));
+}
+
+void destroy_pagemap(struct pte_table* toplvl) {
+	if (paging_mode_request.response->mode == LIMINE_PAGING_MODE_MAX) {
+		destroy_level(toplvl, toplvl, 0, 256, 5);
+	} else {
+		destroy_level(toplvl, toplvl, 0, 256, 4);
 	}
 }
