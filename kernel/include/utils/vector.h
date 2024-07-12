@@ -503,8 +503,8 @@ typedef struct cvector_metadata_t {
  * @param vec - the vector
  * @return void
  */
-#define cvector_for_each_in(it, vec) \
-    for (it = cvector_begin(vec); it < cvector_end(vec); it++)
+#define cvector_for_each_in(it, vec)                                           \
+	for (it = cvector_begin(vec); it < cvector_end(vec); it++)
 
 /**
  * @brief cvector_for_each - call function func on each element of the vector
@@ -512,14 +512,14 @@ typedef struct cvector_metadata_t {
  * @param func - function to be called on each element that takes each element as argument
  * @return void
  */
-#define cvector_for_each(vec, func)                   \
-    do {                                              \
-        if ((vec) && (func) != NULL) {                \
-            size_t i;                                 \
-            for (i = 0; i < cvector_size(vec); i++) { \
-                func((vec)[i]);                       \
-            }                                         \
-        }                                             \
-    } while (0)
+#define cvector_for_each(vec, func)                                            \
+	do {                                                                       \
+		if ((vec) && (func) != NULL) {                                         \
+			size_t i;                                                          \
+			for (i = 0; i < cvector_size(vec); i++) {                          \
+				func((vec)[i]);                                                \
+			}                                                                  \
+		}                                                                      \
+	} while (0)
 
 #endif /* CVECTOR_H_ */

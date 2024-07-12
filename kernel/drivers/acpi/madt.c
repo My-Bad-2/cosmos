@@ -1,20 +1,21 @@
-#include "uacpi/acpi.h"
 #include <drivers/acpi/madt.h>
-#include <log.h>
 #include <memory/addr.h>
 #include <uacpi/tables.h>
-#include <utils/vector.h>
 
 struct acpi_madt* madt_table = NULL;
 cvector_vector_type(struct acpi_madt_ioapic) madt_ioapics = NULL;
 cvector_vector_type(struct acpi_madt_interrupt_source_override) madt_isos =
 	NULL;
 
-struct acpi_madt_ioapic* get_acpi_ioapic(void) {
+cvector(struct acpi_madt_ioapic) get_acpi_ioapic(void) {
 	return madt_ioapics;
 }
 
-struct acpi_madt_interrupt_source_override* get_acpi_iso(void) {
+bool legacy_pic_enabled(void) {
+	return madt_table && (madt_table->flags & ACPI_PIC_ENABLED);
+}
+
+cvector(struct acpi_madt_interrupt_source_override) get_acpi_iso(void) {
 	return madt_isos;
 }
 

@@ -10,25 +10,25 @@
 #include <utils/math.h>
 #include <utils/sync.h>
 
-static struct bitmap phys_bitmap = BITMAP_INITIALIZER;
-static struct lock phys_lock = LOCK_INITIALIZER;
-static phys_addr_t highest_usable_addr = 0;
-static size_t last_index = 0;
-static phys_addr_t phys_highest_address = 0;
+struct bitmap phys_bitmap = BITMAP_INITIALIZER;
+struct lock phys_lock = LOCK_INITIALIZER;
+phys_addr_t highest_usable_addr = 0;
+size_t phys_last_index = 0;
+phys_addr_t phys_highest_address = 0;
 
 size_t total_phys_memory = 0;
 size_t usable_phys_memory = 0;
 size_t used_phys_memory = 0;
 
-static phys_addr_t internal_alloc_pages(size_t limit, size_t count) {
+phys_addr_t internal_alloc_pages(size_t limit, size_t count) {
 	size_t i = 0;
 
-	while (last_index < limit) {
-		if (!(bitmap_get(&phys_bitmap, last_index++))) {
+	while (phys_last_index < limit) {
+		if (!(bitmap_get(&phys_bitmap, phys_last_index++))) {
 			if (++i == count) {
-				size_t page = last_index - count;
+				size_t page = phys_last_index - count;
 
-				for (size_t i = page; i < last_index; ++i) {
+				for (size_t i = page; i < phys_last_index; ++i) {
 					bitmap_set(&phys_bitmap, i);
 				}
 
@@ -49,12 +49,12 @@ phys_addr_t alloc_phys_pages(size_t count) {
 
 	try_lock(&phys_lock);
 
-	size_t i = last_index;
+	size_t i = phys_last_index;
 	phys_addr_t ret =
 		internal_alloc_pages(highest_usable_addr / PAGE_SIZE, count);
 
 	if (ret == INVALID_ADDR) {
-		last_index = 0;
+		phys_last_index = 0;
 		ret = internal_alloc_pages(i, count);
 
 		if (ret == INVALID_ADDR) {
@@ -108,12 +108,12 @@ void lock_phys_pages(size_t count) {
 
 	try_lock(&phys_lock);
 
-	size_t i = last_index;
+	size_t i = phys_last_index;
 	phys_addr_t ret =
 		internal_alloc_pages(highest_usable_addr / PAGE_SIZE, count);
 
 	if (ret == INVALID_ADDR) {
-		last_index = 0;
+		phys_last_index = 0;
 		ret = internal_alloc_pages(i, count);
 
 		assert_debug(ret != INVALID_ADDR, "Out of Physical Memory!");

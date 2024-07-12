@@ -11,4 +11,4 @@ size_t time_ns(void);
 
 void timer_handler(size_t ns);
 
-#endif // DRIVERS_TIMER_H
+#endif	// DRIVERS_TIMER_H

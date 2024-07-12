@@ -38,6 +38,16 @@
 #define INTERRUPT_IPI_INTERRUPT 0xf6
 #define INTERRUPT_IPI_HALT 0xf7
 
+enum interrupt_trigger_mode {
+	IRQ_TRIGGER_MODE_EDGE = 0,
+	IRQ_TRIGGER_MODE_LEVEL = 1,
+};
+
+enum interrupt_polarity {
+	IRQ_POLARITY_ACTIVE_HIGH = 0,
+	IRQ_POLARITY_ACTIVE_LOW = 1,
+};
+
 typedef void (*interrupt_handler_t)(struct iframe* iframe);
 
 struct interrupt_handler {
@@ -51,8 +61,10 @@ struct interrupt_handler {
 
 void interrupt_handler_init(void);
 
-struct interrupt_handler* allocate_handler(int hint, interrupt_handler_t handler);
-void uacpi_allocate_interrupt_handler(uacpi_interrupt_handler handler, int vector, void* ctx);
+struct interrupt_handler* allocate_handler(int hint,
+										   interrupt_handler_t handler);
+void uacpi_allocate_interrupt_handler(uacpi_interrupt_handler handler,
+									  int vector, void* ctx);
 void deallocate_interrupt_handler(int vector);
 
 void set_interrupt_mask(int vector);

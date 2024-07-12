@@ -7,7 +7,7 @@
 #define EPOCH_YEAR 1970
 #define DEFAULT_YEAR 2024
 
-static uint8_t time_days_in_month[] = {
+uint8_t time_days_in_month[] = {
 	0,
 	31,	 // January
 	28,	 // February (not leap year)

@@ -1,7 +1,7 @@
 #include <arch.h>
+#include <drivers/drivers.h>
 #include <kernel.h>
 #include <log.h>
-#include <drivers/drivers.h>
 #include <memory/memory.h>
 #include <utils/vector.h>
 

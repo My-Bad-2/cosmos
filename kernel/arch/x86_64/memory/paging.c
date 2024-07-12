@@ -1,15 +1,15 @@
-#include <log.h>
-
 #include <cpu/cpu.h>
+#include <log.h>
+#include <utils/sync.h>
+
 #include <memory/addr.h>
 #include <memory/memory.h>
 #include <memory/paging.h>
 #include <memory/phys.h>
 #include <memory/vmm.h>
-#include <utils/sync.h>
 
-static struct lock vm_lock = LOCK_INITIALIZER;
-static bool pml3_translation = false;
+struct lock vm_lock = LOCK_INITIALIZER;
+bool pml3_translation = false;
 
 void pte_set_flags(struct pte* entry, size_t flags) {
 	uint64_t temp = entry->entry;
@@ -41,7 +41,7 @@ bool pte_is_large(struct pte* entry) {
 	return pte_get_flags(entry) & PTE_FLAG_HUGE_PAGE;
 }
 
-static size_t get_page_size(size_t flags) {
+size_t get_page_size(size_t flags) {
 	size_t page_size = PAGE_SIZE_4KiB;
 
 	if (flags & VMM_FLAG_LARGE_PAGE) {
@@ -55,7 +55,7 @@ static size_t get_page_size(size_t flags) {
 	return page_size;
 }
 
-static size_t parse_cache(size_t cache, bool large_pages) {
+size_t parse_cache(size_t cache, bool large_pages) {
 	uint64_t patbit = (large_pages ? (1 << 12) : (1 << 7));
 	size_t ret = 0;
 
@@ -83,7 +83,7 @@ static size_t parse_cache(size_t cache, bool large_pages) {
 	return ret;
 }
 
-static size_t parse_vmm_flags(size_t flags) {
+size_t parse_vmm_flags(size_t flags) {
 	size_t ret = PTE_FLAG_PRESENT;
 
 	if (flags & VMM_FLAG_WRITE) {
@@ -109,9 +109,8 @@ static size_t parse_vmm_flags(size_t flags) {
 	return ret;
 }
 
-static struct pte* virt_to_pte(struct pte_table* curr_lvl,
-							   virt_addr_t virt_addr, bool allocate,
-							   size_t page_size, bool large_pages) {
+struct pte* virt_to_pte(struct pte_table* curr_lvl, virt_addr_t virt_addr,
+						bool allocate, size_t page_size, bool large_pages) {
 	size_t pml5_entry = (virt_addr & (0x1FFUL << 48)) >> 48;
 	size_t pml4_entry = (virt_addr & (0x1FFUL << 39)) >> 39;
 	size_t pml3_entry = (virt_addr & (0x1FFUL << 30)) >> 30;
@@ -184,9 +183,9 @@ phys_addr_t virt_to_phys_addr(struct pte_table* toplvl, virt_addr_t virt_addr,
 	return pte_get_address(pml_entry) + (virt_addr % page_size);
 }
 
-static bool map_internal(struct pte_table* toplvl, phys_addr_t phys_addr,
-						 virt_addr_t virt_addr, size_t flags, size_t cache,
-						 size_t page_size) {
+bool map_internal(struct pte_table* toplvl, phys_addr_t phys_addr,
+				  virt_addr_t virt_addr, size_t flags, size_t cache,
+				  size_t page_size) {
 	struct pte* pml_entry =
 		virt_to_pte(toplvl, virt_addr, true, page_size, true);
 
@@ -238,8 +237,8 @@ bool map_page(struct pte_table* toplvl, phys_addr_t phys_addr,
 	return map_internal(toplvl, phys_addr, virt_addr, flags, cache, page_size);
 }
 
-static bool unmap_internal(struct pte_table* toplvl, virt_addr_t virt_addr,
-						   size_t page_size) {
+bool unmap_internal(struct pte_table* toplvl, virt_addr_t virt_addr,
+					size_t page_size) {
 	struct pte* pml_entry =
 		virt_to_pte(toplvl, virt_addr, false, page_size, true);
 
@@ -461,9 +460,8 @@ void initialize_pagemap(struct pte_table* toplvl) {
 	}
 }
 
-static inline void destroy_level(struct pte_table* toplvl,
-								 struct pte_table* pml, size_t start,
-								 size_t end, size_t lvl) {
+void destroy_level(struct pte_table* toplvl, struct pte_table* pml,
+				   size_t start, size_t end, size_t lvl) {
 	if ((lvl == 0) || (pml == NULL)) {
 		return;
 	}

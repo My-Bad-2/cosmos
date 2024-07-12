@@ -2,23 +2,23 @@
 
 #define RBTREE_MAX_ALIGN (alignof(max_align_t))
 
-static inline void* rbnode_raw(struct rbnode* node) {
+void* rbnode_raw(struct rbnode* node) {
 	return (void*)(node->parent_and_flags & ~RBNODE_FLAG_MASK);
 }
 
-static inline unsigned long rbnode_flags(struct rbnode* n) {
+unsigned long rbnode_flags(struct rbnode* n) {
 	return n->parent_and_flags & RBNODE_FLAG_MASK;
 }
 
-static inline bool rbnode_is_red(struct rbnode* n) {
+bool rbnode_is_red(struct rbnode* n) {
 	return rbnode_flags(n) & RBNODE_RED;
 }
 
-static inline bool rbnode_is_black(struct rbnode* n) {
+bool rbnode_is_black(struct rbnode* n) {
 	return !(rbnode_flags(n) & RBNODE_RED);
 }
 
-static inline bool rbnode_is_root(struct rbnode* n) {
+bool rbnode_is_root(struct rbnode* n) {
 	return rbnode_flags(n) & RBNODE_ROOT;
 }
 
@@ -172,17 +172,16 @@ struct rbnode* rbtree_last_postorder(struct rbtree* tree) {
 	return tree->root;
 }
 
-static inline void rbtree_store(struct rbnode** ptr, struct rbnode* addr) {
+void rbtree_store(struct rbnode** ptr, struct rbnode* addr) {
 	*(volatile struct rbnode**)ptr = addr;
 }
 
-static inline void rbnode_set_parent_and_flags(struct rbnode* node,
-											   struct rbnode* parent,
-											   size_t flags) {
+void rbnode_set_parent_and_flags(struct rbnode* node, struct rbnode* parent,
+								 size_t flags) {
 	node->parent_and_flags = (size_t)parent | flags;
 }
 
-static inline struct rbtree* rbnode_pop_root(struct rbnode* node) {
+struct rbtree* rbnode_pop_root(struct rbnode* node) {
 	struct rbtree* tree = NULL;
 
 	if (rbnode_is_root(node)) {
@@ -193,8 +192,7 @@ static inline struct rbtree* rbnode_pop_root(struct rbnode* node) {
 	return tree;
 }
 
-static inline struct rbtree* rbnode_push_root(struct rbnode* node,
-											  struct rbtree* tree) {
+struct rbtree* rbnode_push_root(struct rbnode* node, struct rbtree* tree) {
 	if (tree) {
 		if (node) {
 			node->parent_and_flags =
@@ -207,7 +205,7 @@ static inline struct rbtree* rbnode_push_root(struct rbnode* node,
 	return NULL;
 }
 
-static inline void rbnode_swap_child(struct rbnode* old, struct rbnode* new) {
+void rbnode_swap_child(struct rbnode* old, struct rbnode* new) {
 	struct rbnode* parent = rbnode_parent(old);
 
 	if (parent) {
@@ -235,7 +233,7 @@ void rbtree_move(struct rbtree* to, struct rbtree* from) {
 	}
 }
 
-static inline void rbtree_paint_terminal(struct rbnode* node) {
+void rbtree_paint_terminal(struct rbnode* node) {
 	struct rbnode* parent = rbnode_parent(node);
 	struct rbnode* g = rbnode_parent(parent);
 	struct rbnode* gg = rbnode_parent(g);
@@ -314,7 +312,7 @@ static inline void rbtree_paint_terminal(struct rbnode* node) {
 	}
 }
 
-static inline struct rbnode* rbtree_paint_path(struct rbnode* node) {
+struct rbnode* rbtree_paint_path(struct rbnode* node) {
 	struct rbnode* parent;
 	struct rbnode* g;
 	struct rbnode* u;
@@ -347,7 +345,7 @@ static inline struct rbnode* rbtree_paint_path(struct rbnode* node) {
 	}
 }
 
-static inline void rbtree_paint(struct rbnode* node) {
+void rbtree_paint(struct rbnode* node) {
 	node = rbtree_paint_path(node);
 
 	if (node) {
@@ -393,8 +391,7 @@ void rbtree_add(struct rbtree* tree, struct rbnode* parent,
 	rbtree_paint(node);
 }
 
-static inline void rbnode_rebalance_terminal(struct rbnode* parent,
-											 struct rbnode* previous) {
+void rbnode_rebalance_terminal(struct rbnode* parent, struct rbnode* previous) {
 	struct rbnode *s, *x, *y, *g;
 	struct rbtree* tree;
 
@@ -547,8 +544,8 @@ static inline void rbnode_rebalance_terminal(struct rbnode* parent,
 	}
 }
 
-static inline struct rbnode* rbnode_rebalance_path(struct rbnode* parent,
-												   struct rbnode** previous) {
+struct rbnode* rbnode_rebalance_path(struct rbnode* parent,
+									 struct rbnode** previous) {
 	struct rbnode *s, *left_node, *right_node;
 
 	while (parent) {
@@ -577,7 +574,7 @@ static inline struct rbnode* rbnode_rebalance_path(struct rbnode* parent,
 	return NULL;
 }
 
-static inline void rbnode_rebalance(struct rbnode* node) {
+void rbnode_rebalance(struct rbnode* node) {
 	struct rbnode* previous = NULL;
 	node = rbnode_rebalance_path(node, &previous);
 

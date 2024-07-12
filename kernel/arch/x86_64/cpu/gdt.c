@@ -12,9 +12,8 @@ struct tss tss = {};
 extern void gdt_load(struct gdt_register* gdtr);
 extern void tss_load(void);
 
-static void create_gdt_segment(struct gdt_segment* segment, uint32_t base,
-							   uint32_t limit, uint8_t granularity,
-							   uint8_t access) {
+void create_gdt_segment(struct gdt_segment* segment, uint32_t base,
+						uint32_t limit, uint8_t granularity, uint8_t access) {
 	segment->limit_low = (uint16_t)(limit & 0xFFFF);
 	segment->base_low = (uint16_t)(base & 0xFFFF);
 	segment->base_mid = (uint8_t)((base >> 16) & 0xFF);
@@ -24,7 +23,7 @@ static void create_gdt_segment(struct gdt_segment* segment, uint32_t base,
 	segment->base_high = (uint8_t)((base >> 24) & 0xFF);
 }
 
-static void create_tss_segment(struct tss_segment* segment, struct tss* tss) {
+void create_tss_segment(struct tss_segment* segment, struct tss* tss) {
 	segment->len = sizeof(struct tss);
 	segment->base_low = (uint16_t)((uintptr_t)tss & 0xFFFF);
 	segment->base_mid = (uint8_t)(((uintptr_t)tss >> 16) & 0xFF);

@@ -1,6 +1,8 @@
 #include <cpu/idt.h>
 #include <cpu/interrupts.h>
 #include <cpu/pic.h>
+#include <drivers/acpi/madt.h>
+#include <drivers/ioapic.h>
 #include <log.h>
 #include <stdlib.h>
 
@@ -8,13 +10,13 @@
 
 struct interrupt_handler* interrupt_handlers = NULL;
 
-static inline bool is_handler_reserved(struct interrupt_handler* handler) {
+bool is_handler_reserved(struct interrupt_handler* handler) {
 	return (handler->reserved == true);
 }
 
 // clang-format off
 
-static inline bool reserve_interrupt_handler(struct interrupt_handler* handler) {
+bool reserve_interrupt_handler(struct interrupt_handler* handler) {
 	if (is_handler_reserved(handler)) {
 		return false;
 	}
@@ -24,7 +26,7 @@ static inline bool reserve_interrupt_handler(struct interrupt_handler* handler) 
 
 // clang-format on
 
-static inline bool reset_handler(struct interrupt_handler* handler) {
+bool reset_handler(struct interrupt_handler* handler) {
 	bool ret = (bool)handler->handler;
 
 	handler->handler = NULL;
@@ -36,7 +38,7 @@ static inline bool reset_handler(struct interrupt_handler* handler) {
 	return ret;
 }
 
-static inline void send_eoi(int vector) {
+void send_eoi(int vector) {
 	pic_send_eoi(INTERRUPT_TO_IRQ(vector));
 }
 
@@ -97,11 +99,19 @@ void deallocate_interrupt_handler(int vector) {
 }
 
 void set_interrupt_mask(int vector) {
-	pic_set_mask(INTERRUPT_TO_IRQ(vector));
+	if (ioapic_is_enabled() && legacy_pic_enabled()) {
+		ioapic_set_mask_isa_irq(INTERRUPT_TO_IRQ(vector));
+	} else {
+		pic_set_mask(INTERRUPT_TO_IRQ(vector));
+	}
 }
 
 void clear_interrupt_mask(int vector) {
-	pic_clear_mask(INTERRUPT_TO_IRQ(vector));
+	if (ioapic_is_enabled() && legacy_pic_enabled()) {
+		ioapic_clear_mask_isa_irq(INTERRUPT_TO_IRQ(vector));
+	} else {
+		pic_clear_mask(INTERRUPT_TO_IRQ(vector));
+	}
 }
 
 void call_interrupt_handler(struct iframe* iframe) {

@@ -6,4 +6,4 @@
 struct datetime rtc_read_time(void);
 void rtc_write_time(struct datetime datetime);
 
-#endif // DRIVERS_RTC_H
+#endif	// DRIVERS_RTC_H

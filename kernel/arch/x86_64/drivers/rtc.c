@@ -9,9 +9,9 @@
 
 #define HOUR_PM_BIT (1 << 7)
 
-static bool rtc_is_bcd = false;
-static bool rtc_is_24_hour = false;
-static struct lock time_lock = LOCK_INITIALIZER;
+bool rtc_is_bcd = false;
+bool rtc_is_24_hour = false;
+struct lock rtc_lock = LOCK_INITIALIZER;
 
 enum rtc_registers {
 	Reg_Seconds,
@@ -55,42 +55,42 @@ enum register_c {
 
 enum register_d { Valid_Cmos = (1 << 7) };
 
-static inline uint8_t to_bcd(uint8_t binary) {
+uint8_t to_bcd(uint8_t binary) {
 	return (uint8_t)(((binary / 10) << 4) | (binary % 10));
 }
 
-static inline uint8_t from_bcd(uint8_t bcd) {
+uint8_t from_bcd(uint8_t bcd) {
 	return ((bcd >> 4) * 10) + (bcd & 0xf);
 }
 
-static inline uint16_t rtc_index(uint16_t bank) {
+uint16_t rtc_index(uint16_t bank) {
 	return bank * 2;
 }
 
-static inline uint16_t rtc_data(uint16_t bank) {
+uint16_t rtc_data(uint16_t bank) {
 	return (bank * 2) + 1;
 }
 
-static inline uint8_t rtc_read_reg_raw(enum rtc_registers reg) {
+uint8_t rtc_read_reg_raw(enum rtc_registers reg) {
 	outpb(RTC_PORT_BASE + rtc_index(0), reg);
 	return inpb(RTC_PORT_BASE + rtc_data(0));
 }
 
-static inline void rtc_write_reg_raw(enum rtc_registers reg, uint8_t val) {
+void rtc_write_reg_raw(enum rtc_registers reg, uint8_t val) {
 	outpb(RTC_PORT_BASE + rtc_index(0), reg);
 	outpb(RTC_PORT_BASE + rtc_data(0), val);
 }
 
-static inline uint8_t rtc_read_reg(enum rtc_registers reg) {
+uint8_t rtc_read_reg(enum rtc_registers reg) {
 	uint8_t val = rtc_read_reg_raw(reg);
 	return rtc_is_bcd ? from_bcd(val) : val;
 }
 
-static inline void rtc_write_reg(enum rtc_registers reg, uint8_t val) {
+void rtc_write_reg(enum rtc_registers reg, uint8_t val) {
 	rtc_write_reg_raw(reg, rtc_is_bcd ? to_bcd(val) : val);
 }
 
-static inline uint8_t rtc_read_hour(void) {
+uint8_t rtc_read_hour(void) {
 	uint8_t data = rtc_read_reg_raw(Reg_Hours);
 
 	bool pm = data & HOUR_PM_BIT;
@@ -116,7 +116,7 @@ static inline uint8_t rtc_read_hour(void) {
 	}
 }
 
-static inline void rtc_write_hour(uint8_t hour) {
+void rtc_write_hour(uint8_t hour) {
 	bool pm = (hour > 11);
 	uint8_t data = 0;
 
@@ -136,7 +136,7 @@ static inline void rtc_write_hour(uint8_t hour) {
 	rtc_write_reg_raw(Reg_Hours, data);
 }
 
-static inline void check_rtc_mode(void) {
+void check_rtc_mode(void) {
 	uint8_t reg_b = rtc_read_reg_raw(Reg_B);
 
 	rtc_is_24_hour = (reg_b & Hour_Mode_24) == Hour_Mode_24;
@@ -144,7 +144,7 @@ static inline void check_rtc_mode(void) {
 }
 
 struct datetime rtc_read_time(void) {
-	try_lock(&time_lock);
+	try_lock(&rtc_lock);
 	struct datetime result;
 
 	check_rtc_mode();
@@ -159,13 +159,13 @@ struct datetime rtc_read_time(void) {
 	result.month = rtc_read_reg(Reg_Month);
 	result.year = rtc_read_reg(Reg_Year) + 2000;
 
-	lock_release(&time_lock);
+	lock_release(&rtc_lock);
 
 	return result;
 }
 
 void rtc_write_time(struct datetime datetime) {
-	try_lock(&time_lock);
+	try_lock(&rtc_lock);
 	check_rtc_mode();
 
 	rtc_write_reg_raw(Reg_B, rtc_read_reg_raw(Reg_B) | Set_Clock);
@@ -180,4 +180,6 @@ void rtc_write_time(struct datetime datetime) {
 	rtc_write_reg(Reg_Year, (uint8_t)(datetime.year - 2000));
 
 	rtc_write_reg_raw(Reg_B, rtc_read_reg_raw(Reg_B) & ~Set_Clock);
+
+	lock_release(&rtc_lock);
 }

@@ -9,17 +9,17 @@
 
 #define DESIRED_PIT_FREQUENCY 1000
 
-static enum clock_source source = CLOCK_UNSELECTED;
-static struct fixed_point us_per_pit;
-static atomic_size_t pit_ticks = 0;
-static uint16_t pit_divisor = 0;
+enum clock_source clock_source = CLOCK_UNSELECTED;
+struct fixed_point us_per_pit;
+atomic_size_t pit_ticks = 0;
+uint16_t pit_divisor = 0;
 
 #define INTERNAL_FREQ 1193182U
 #define INTERNAL_FREQ_3X 3579546U
 
 #define INTERNAL_FREQ_TICKS_PER_MS (INTERNAL_FREQ / 1000)
 
-static inline size_t current_ticks_pit(void) {
+size_t current_ticks_pit(void) {
 	return pit_ticks;
 }
 
@@ -62,7 +62,7 @@ void handle_pit_interrupt(struct iframe* frame) {
 	pit_ticks++;
 }
 
-static inline void pit_sleep_ms(size_t ms) {
+void pit_sleep_ms(size_t ms) {
 	volatile size_t target = current_ticks_pit() + ms;
 
 	while (current_ticks_pit() < target) {
@@ -71,9 +71,9 @@ static inline void pit_sleep_ms(size_t ms) {
 }
 
 void arch_timer_init(void) {
-	source = CLOCK_PIT;
+	clock_source = CLOCK_PIT;
 
-	switch (source) {
+	switch (clock_source) {
 		case CLOCK_PIT:
 			set_pit_frequency(DESIRED_PIT_FREQUENCY);
 			struct interrupt_handler* handler =
@@ -88,7 +88,7 @@ void arch_timer_init(void) {
 }
 
 void timer_sleep_ms(size_t ms) {
-	switch (source) {
+	switch (clock_source) {
 		case CLOCK_PIT:
 			pit_sleep_ms(ms);
 			break;
@@ -99,7 +99,7 @@ void timer_sleep_ms(size_t ms) {
 }
 
 size_t timer_get_current_time(void) {
-	switch (source) {
+	switch (clock_source) {
 		case CLOCK_PIT:
 			return current_ticks_pit();
 			break;

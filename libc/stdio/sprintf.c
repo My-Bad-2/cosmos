@@ -1,6 +1,6 @@
 #include "internal/stdio_internal.h"
 
-static inline FILE stdio_dummy_file(char* buffer, size_t buffer_size) {
+FILE stdio_dummy_file(char* buffer, size_t buffer_size) {
 	size_t usable_buffer_size = (buffer_size > STDIO_MAX_BUFFER_SIZE)
 									? STDIO_MAX_BUFFER_SIZE
 									: (size_t)buffer_size;

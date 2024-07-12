@@ -51,12 +51,11 @@
 #define SERIALS_FIFO_TRIGGER_LEVEL3 (2 << 6)
 #define SERIALS_FIFO_TRIGGER_LEVEL4 (3 << 6)
 
-static inline void serials_write_register(uint16_t port, uint16_t reg,
-										  uint8_t val) {
+void serials_write_register(uint16_t port, uint16_t reg, uint8_t val) {
 	outpb(port + reg, val);
 }
 
-static inline uint8_t serials_read_register(uint16_t port, uint16_t reg) {
+uint8_t serials_read_register(uint16_t port, uint16_t reg) {
 	return inpb(port + reg);
 }
 

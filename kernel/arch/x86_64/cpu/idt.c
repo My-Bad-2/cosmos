@@ -10,9 +10,8 @@
 extern uint64_t int_table[];
 extern void load_idt(struct idt_register* idtr);
 
-static void make_idt_segment(struct idt_segment* segment, uint64_t handler,
-							 uint8_t ist, uint8_t attribute,
-							 uint16_t selector) {
+void make_idt_segment(struct idt_segment* segment, uint64_t handler,
+					  uint8_t ist, uint8_t attribute, uint16_t selector) {
 	segment->offset_low = handler & 0xffff;
 	segment->selector = selector;
 	segment->ist = ist;

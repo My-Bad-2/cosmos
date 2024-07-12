@@ -26,9 +26,9 @@ struct slab_metadata {
 	size_t size;
 };
 
-static struct heap_slab heap_slabs[MAX_SLAB_NUM];
+struct heap_slab heap_slabs[MAX_SLAB_NUM];
 
-static void slab_init(struct heap_slab* slab, size_t size) {
+void slab_init(struct heap_slab* slab, size_t size) {
 	slab->size = size;
 	slab->first_free = to_higher_half(alloc_phys_page());
 
@@ -48,7 +48,7 @@ static void slab_init(struct heap_slab* slab, size_t size) {
 	arr[max_size * factor] = 0;
 }
 
-static void* slab_alloc(struct heap_slab* slab) {
+void* slab_alloc(struct heap_slab* slab) {
 	try_lock(&slab->lock);
 
 	if (slab->first_free == 0) {
@@ -78,7 +78,7 @@ void slab_free(struct heap_slab* slab, void* ptr) {
 	lock_release(&slab->lock);
 }
 
-static struct heap_slab* slab_for_each(size_t size) {
+struct heap_slab* slab_for_each(size_t size) {
 	for (size_t i = 0; i < MAX_SLAB_NUM; ++i) {
 		if (heap_slabs[i].size >= size) {
 			return &heap_slabs[i];
@@ -105,7 +105,7 @@ void* heap_malloc(size_t size) {
 	return (void*)((uintptr_t)ptr + PAGE_SIZE);
 }
 
-static void* heap_page_realloc(void* old_ptr, size_t size) {
+void* heap_page_realloc(void* old_ptr, size_t size) {
 	struct slab_metadata* metadata =
 		(struct slab_metadata*)((virt_addr_t)old_ptr - PAGE_SIZE);
 	size_t old_size = metadata->size;

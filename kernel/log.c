@@ -1,7 +1,7 @@
-#include "arch.h"
+#include <arch.h>
 #include <log.h>
 
-static inline const char* logger_get_tag(enum log_flags tag) {
+const char* logger_get_tag(enum log_flags tag) {
 	switch (tag) {
 		case LOG_NOTE:
 			return "[N]";
@@ -24,7 +24,7 @@ static inline const char* logger_get_tag(enum log_flags tag) {
 	return NULL;
 }
 
-static inline const char* logger_get_color(enum log_flags tag) {
+const char* logger_get_color(enum log_flags tag) {
 	switch (tag) {
 		case LOG_NOTAG:
 		case LOG_NOTE:
